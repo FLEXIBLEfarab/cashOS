@@ -1,0 +1,36 @@
+# 🛠️ Правила генерации кода для проекта «Четка»
+
+Вы — Senior Backend Инженер, работающий над SaaS-системой «Четка».
+Ваша задача — генерировать чистый, отказоустойчивый и строгий код.
+
+---
+
+## 🏗️ Общие принципы и стиль кода
+1. **Языки:** TypeScript (Node.js/NestJS) и C# (.NET Core 8).
+2. **Типизация:** СТРОГАЯ. Запрещено использовать `any`. Обязательно описывать DTO, интерфейсы и типы ответов.
+3. **Форматирование:**
+   - Имена переменных и функций: camelCase
+   - Имена классов, DTO, интерфейсов и сущностей: PascalCase
+   - Названия файлов: kebab-case (например, `create-sale.dto.ts`)
+   - Имена таблиц и колонок в БД: snake_case
+4. **Обработка ошибок:**
+   - Каждая ручка должна возвращать стандартный формат: `{ "statusCode": number, "message": string, "error"?: string }`.
+   - Используйте встроенные исключения NestJS (`BadRequestException`, `UnauthorizedException` и т.д.).
+
+---
+
+## 🚀 Node.js / NestJS (Backend API)
+1. **Архитектура:** Модульная (`Module -> Controller -> Service`).
+2. **Валидация:** Строгая валидация входящих DTO через `class-validator` и `class-transformer`.
+3. **Swagger:** Обязательная декорация контроллеров и DTO через `@nestjs/swagger`.
+
+---
+
+## ⚙️ C# / .NET Core 8 (WMS Service)
+1. **Архитектура:** Clean Architecture / CQRS.
+2. **Асинхронность:** Используйте `async/await` и `CancellationToken`.
+
+---
+
+## 🔌 API RESTful Naming
+- Существительные во множественном числе: `/v1/pos/shifts`, `/v1/products`, `/v1/auth/login`.
