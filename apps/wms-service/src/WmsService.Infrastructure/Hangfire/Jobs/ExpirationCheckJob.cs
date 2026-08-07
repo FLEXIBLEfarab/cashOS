@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using WmsService.Application.Common.Interfaces;
 using WmsService.Infrastructure.Persistence.Repositories;
 
 namespace WmsService.Infrastructure.Hangfire.Jobs;

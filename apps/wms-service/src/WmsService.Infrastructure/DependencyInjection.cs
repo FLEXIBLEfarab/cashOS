@@ -9,6 +9,7 @@ using WmsService.Infrastructure.Messaging.RabbitMQ;
 using WmsService.Infrastructure.Persistence;
 using WmsService.Infrastructure.Persistence.Repositories;
 using WmsService.Infrastructure.Services;
+using WmsService.Infrastructure.SignalR;
 using WmsService.Infrastructure.SignalR.Hubs;
 
 namespace WmsService.Infrastructure;
@@ -23,6 +24,11 @@ public static class DependencyInjection
                 configuration.GetConnectionString("DefaultConnection"),
                 b => b.MigrationsAssembly(typeof(WmsDbContext).Assembly.FullName)));
 
+        services.AddScoped<IWmsDbContext>(provider => provider.GetRequiredService<WmsDbContext>());
+
+        // Unit of Work
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
+
         // Repositories
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
         services.AddScoped<IStockRepository, StockRepository>();
@@ -32,6 +38,8 @@ public static class DependencyInjection
         // Services
         services.AddScoped<IDateTimeService, DateTimeService>();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
+        services.AddScoped<IEventPublisher, EventPublisher>();
+        services.AddScoped<IRealTimeNotifier, RealTimeNotifier>();
         services.AddHttpContextAccessor();
 
         // Hangfire

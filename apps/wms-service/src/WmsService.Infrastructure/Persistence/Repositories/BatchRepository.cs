@@ -1,15 +1,8 @@
 using Microsoft.EntityFrameworkCore;
+using WmsService.Application.Common.Interfaces;
 using WmsService.Domain.Entities;
 
 namespace WmsService.Infrastructure.Persistence.Repositories;
-
-public interface IBatchRepository
-{
-    Task<IReadOnlyList<Batch>> GetExpiredAsync(Guid warehouseId, CancellationToken cancellationToken = default);
-    Task<IReadOnlyList<Batch>> GetExpiringSoonAsync(Guid warehouseId, int days, CancellationToken cancellationToken = default);
-    Task<IReadOnlyList<Batch>> GetByProductAsync(Guid productId, Guid warehouseId, CancellationToken cancellationToken = default);
-    Task<IReadOnlyList<Batch>> GetBlockedAsync(Guid warehouseId, CancellationToken cancellationToken = default);
-}
 
 public sealed class BatchRepository : Repository<Batch>, IBatchRepository
 {

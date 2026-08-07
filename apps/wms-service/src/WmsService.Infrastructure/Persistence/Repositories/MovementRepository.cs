@@ -1,14 +1,8 @@
 using Microsoft.EntityFrameworkCore;
+using WmsService.Application.Common.Interfaces;
 using WmsService.Domain.Entities;
 
 namespace WmsService.Infrastructure.Persistence.Repositories;
-
-public interface IMovementRepository
-{
-    Task<IReadOnlyList<StockMovement>> GetByWarehouseAsync(Guid warehouseId, DateTime from, DateTime to, CancellationToken cancellationToken = default);
-    Task<IReadOnlyList<StockMovement>> GetByDocumentAsync(string documentId, string documentType, CancellationToken cancellationToken = default);
-    Task<IReadOnlyList<StockMovement>> GetByProductAsync(Guid productId, Guid warehouseId, CancellationToken cancellationToken = default);
-}
 
 public sealed class MovementRepository : Repository<StockMovement>, IMovementRepository
 {
