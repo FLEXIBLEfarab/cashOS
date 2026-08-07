@@ -152,33 +152,26 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
 
     try {
       this.client = new Redis(url, {
-        maxRetriesPerRequest: 3,
+        maxRetriesPerRequest: 1,
         enableOfflineQueue: false,
         lazyConnect: true,
+        retryStrategy: () => null, // отключаем повторные бесконечные попытки в консоли
       });
-
-      await this.client.connect();
 
       this.client.on('connect', () => {
         this.isConnected = true;
         this.logger.log('✅ Redis подключён');
       });
 
-      this.client.on('error', (err: Error) => {
-        this.logger.error(`Redis error: ${err.message}`);
+      this.client.on('error', () => {
         this.isConnected = false;
       });
 
-      this.client.on('close', () => {
-        this.isConnected = false;
-        this.logger.warn('Redis соединение закрыто');
-      });
-
+      await this.client.connect();
       this.isConnected = true;
     } catch (error) {
       this.logger.warn(
-        `⚠️ Не удалось подключиться к Redis: ${(error as Error).message}. ` +
-        `Сервис работает без кэша.`,
+        `⚠️ Redis недоступен: ${(error as Error).message}. Сервис работает без кэша.`,
       );
     }
   }
