@@ -1,24 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <AssemblyName>WmsService.Domain</AssemblyName>
     <RootNamespace>WmsService.Domain</RootNamespace>
   </PropertyGroup>
-
-  <!--
-    Domain Layer (Core — без внешних зависимостей):
-    - Entities (StockItem, Warehouse, WarehouseZone, StockMovement, etc.)
-    - Value Objects (Quantity, SKU, WarehouseCode, etc.)
-    - Domain Events
-    - Aggregates
-    - Domain Exceptions
-    - Repository Interfaces
-    - Domain Services
-  -->
-
-  <!-- Нет внешних зависимостей — Domain изолирован -->
 
 </Project>

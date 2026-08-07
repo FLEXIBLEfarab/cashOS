@@ -29,11 +29,11 @@ public sealed class HealthController : ControllerBase
 
         var response = new HealthResponseDto
         {
-            Status    = "healthy",
-            Service   = "WmsService",
-            Version   = "1.0.0",
+            Status = "healthy",
+            Service = "WmsService",
+            Version = "1.0.0",
             Timestamp = DateTime.UtcNow,
-            Uptime    = Environment.TickCount64,
+            Uptime = Environment.TickCount64,
         };
 
         return Ok(response);
