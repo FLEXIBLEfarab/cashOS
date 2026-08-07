@@ -1,3 +1,7 @@
+using WmsService.API.Middleware;
+using WmsService.Application;
+using WmsService.Infrastructure;
+using WmsService.Infrastructure.SignalR.Hubs;
 using Serilog;
 
 // ─── Logger (bootstrap) ───────────────────────────────────────────────────────
@@ -23,24 +27,24 @@ try
     {
         options.SwaggerDoc("v1", new()
         {
-            Title       = "Четка WMS Service API",
-            Version     = "v1",
+            Title = "Четка WMS Service API",
+            Version = "v1",
             Description = "WMS (Warehouse Management System) микросервис для SaaS-системы «Четка».\n" +
-                          "Архитектура: Clean Architecture / CQRS (MediatR).",
+                "Архитектура: Clean Architecture / CQRS (MediatR).",
             Contact = new()
             {
-                Name  = "Команда Четка",
+                Name = "Команда Четка",
                 Email = "dev@chetka.kz",
-                Url   = new Uri("https://chetka.kz"),
+                Url = new Uri("https://chetka.kz"),
             },
         });
 
         options.AddSecurityDefinition("Bearer", new()
         {
-            Type        = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
-            Scheme      = "bearer",
+            Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
+            Scheme = "bearer",
             BearerFormat = "JWT",
-            In          = Microsoft.OpenApi.Models.ParameterLocation.Header,
+            In = Microsoft.OpenApi.Models.ParameterLocation.Header,
             Description = "Введите JWT токен (получить через /v1/auth/login в Backend API)",
         });
 
@@ -53,6 +57,10 @@ try
         });
     });
 
+    // ─── Application & Infrastructure ────────────────────────────────────────
+    builder.Services.AddApplication();
+    builder.Services.AddInfrastructure(builder.Configuration);
+
     // ─── CORS ─────────────────────────────────────────────────────────────────
     builder.Services.AddCors(options =>
     {
@@ -63,14 +71,11 @@ try
     // ─── Health Checks ────────────────────────────────────────────────────────
     builder.Services.AddHealthChecks();
 
-    // TODO (Шаг 4): Зарегистрировать Application и Infrastructure слои
-    // builder.Services.AddApplication();
-    // builder.Services.AddInfrastructure(builder.Configuration);
-
     var app = builder.Build();
 
     // ─── Middleware ───────────────────────────────────────────────────────────
     app.UseSerilogRequestLogging();
+    app.UseMiddleware<GlobalExceptionMiddleware>();
 
     if (app.Environment.IsDevelopment())
     {
@@ -88,8 +93,10 @@ try
 
     app.MapControllers();
     app.MapHealthChecks("/health");
+    app.MapHub<WmsHub>("/hubs/wms");
 
     Log.Information("📚 WMS Swagger UI: http://localhost:5000/api/docs");
+    Log.Information("📡 WMS SignalR Hub: /hubs/wms");
 
     await app.RunAsync();
 }
