@@ -7,51 +7,115 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 import { OpenShiftDto } from './dto/open-shift.dto';
 import { CloseShiftDto } from './dto/close-shift.dto';
-import { CreateSaleDto, PaymentMethod } from './dto/create-sale.dto';
+import { CreateSaleDto, PaymentMethod, SplitPaymentItemDto } from './dto/create-sale.dto';
 import { RefundSaleDto } from './dto/refund-sale.dto';
+import { CashInDto, CashOutDto } from './dto/cash-in-out.dto';
 import {
   ShiftResponseDto,
   CloseShiftResponseDto,
   SaleResponseDto,
   SaleItemResponseDto,
   RefundResponseDto,
+  CashInOutResponseDto,
+  ShiftReportDto,
+  PaymentMethodTotalsDto,
+  FiscalReceiptDto,
 } from './dto/pos-response.dto';
+import { OfdService } from './services/ofd.service';
+import { RabbitMqProducerService } from '../../infrastructure/rabbitmq/rabbitmq.service';
+
+// ─── Internal State (in-memory) ───────────────────────────────────────────────
+
+/**
+ * Внутреннее состояние смены с расширенными данными для отчётности.
+ * TODO (Шаг 4): Заменить на TypeORM Entity — ShiftEntity.
+ */
+interface ShiftState {
+  shiftId: string;
+  terminalId: string;
+  cashierId: string;
+  openedAt: string;
+  closedAt: string | null;
+  status: 'open' | 'closed';
+  openingCash: number;
+  closingCash: number | null;
+  note: string | null;
+  // Агрегаты продаж
+  totalSalesCount: number;
+  totalSalesAmount: number;
+  refundsCount: number;
+  refundsAmount: number;
+  // Итоги по методам оплаты
+  cashTotal: number;
+  cardTotal: number;
+  kaspiPayTotal: number;
+  qrTotal: number;
+  // Движение наличных
+  cashInTotal: number;
+  cashOutTotal: number;
+  cashInOutOperations: CashInOutResponseDto[];
+}
+
+/**
+ * Преобразует внутренний ShiftState в ShiftResponseDto.
+ */
+function toShiftResponse(state: ShiftState): ShiftResponseDto {
+  return {
+    shiftId: state.shiftId,
+    terminalId: state.terminalId,
+    cashierId: state.cashierId,
+    openedAt: state.openedAt,
+    closedAt: state.closedAt,
+    status: state.status,
+    openingCash: state.openingCash,
+    closingCash: state.closingCash,
+    totalSalesAmount: state.totalSalesAmount,
+    totalSalesCount: state.totalSalesCount,
+    cashInTotal: state.cashInTotal,
+    cashOutTotal: state.cashOutTotal,
+    note: state.note,
+  };
+}
+
+// ─── PosService ────────────────────────────────────────────────────────────────
 
 @Injectable()
 export class PosService {
   private readonly logger = new Logger(PosService.name);
 
   /**
-   * In-memory хранилища (временные).
-   * TODO: Заменить на TypeORM Repositories в Шаге 4.
+   * In-memory хранилища.
+   * TODO (Шаг 4): Заменить на TypeORM ShiftRepository и SaleRepository.
    */
-  private readonly shifts = new Map<string, ShiftResponseDto>();
+  private readonly shiftStates = new Map<string, ShiftState>();
   private readonly sales = new Map<string, SaleResponseDto>();
 
-  // ──────────────────────────────────────────────────────────────────────────
-  //  Смены (Shifts)
-  // ──────────────────────────────────────────────────────────────────────────
+  constructor(
+    private readonly ofdService: OfdService,
+    private readonly rabbitMqProducer: RabbitMqProducerService,
+  ) {}
+
+  // ─── Смены (Shifts) ──────────────────────────────────────────────────────────
 
   /**
    * Открыть новую кассовую смену.
-   * Один терминал = одна открытая смена в моменте.
    */
   async openShift(
     dto: OpenShiftDto,
     cashierId: string,
   ): Promise<ShiftResponseDto> {
-    // Проверяем: нет ли уже открытой смены на этом терминале
-    const existingOpen = Array.from(this.shifts.values()).find(
+    const existingOpen = Array.from(this.shiftStates.values()).find(
       (s) => s.terminalId === dto.terminalId && s.status === 'open',
     );
 
     if (existingOpen) {
       throw new BadRequestException(
-        `На терминале ${dto.terminalId} уже открыта смена (shiftId: ${existingOpen.shiftId}). Закройте её перед открытием новой.`,
+        `На терминале ${dto.terminalId} уже открыта смена (shiftId: ${existingOpen.shiftId}). ` +
+        `Закройте её перед открытием новой.`,
       );
     }
 
-    const shift: ShiftResponseDto = {
+    const state: ShiftState = {
       shiftId: uuidv4(),
       terminalId: dto.terminalId,
       cashierId,
@@ -60,106 +124,222 @@ export class PosService {
       status: 'open',
       openingCash: dto.openingCash,
       closingCash: null,
-      totalSalesAmount: 0,
-      totalSalesCount: 0,
       note: dto.note ?? null,
+      totalSalesCount: 0,
+      totalSalesAmount: 0,
+      refundsCount: 0,
+      refundsAmount: 0,
+      cashTotal: 0,
+      cardTotal: 0,
+      kaspiPayTotal: 0,
+      qrTotal: 0,
+      cashInTotal: 0,
+      cashOutTotal: 0,
+      cashInOutOperations: [],
     };
 
-    this.shifts.set(shift.shiftId, shift);
+    this.shiftStates.set(state.shiftId, state);
 
     this.logger.log(
-      `📂 Смена открыта: shiftId=${shift.shiftId}, terminal=${dto.terminalId}, кассир=${cashierId}`,
+      `📂 Смена открыта: shiftId=${state.shiftId}, terminal=${dto.terminalId}, кассир=${cashierId}`,
     );
 
-    return shift;
+    return toShiftResponse(state);
   }
 
   /**
    * Закрыть кассовую смену.
-   * Подсчитывает расхождение между ожидаемой и фактической суммой наличных.
+   * Публикует событие shift.closed в RabbitMQ.
    */
   async closeShift(
     dto: CloseShiftDto,
     cashierId: string,
   ): Promise<CloseShiftResponseDto> {
-    const shift = this.shifts.get(dto.shiftId);
+    const state = this.getShiftStateOrThrow(dto.shiftId);
 
-    if (!shift) {
-      throw new NotFoundException(
-        `Смена с shiftId=${dto.shiftId} не найдена`,
-      );
+    if (state.status === 'closed') {
+      throw new BadRequestException(`Смена ${dto.shiftId} уже закрыта`);
     }
-
-    if (shift.status === 'closed') {
-      throw new BadRequestException(
-        `Смена ${dto.shiftId} уже закрыта`,
-      );
-    }
-
-    // В реальной системе кассир может закрывать только свою смену
-    // (или менеджер — любую). Оставляем проверку как TODO.
-    // if (shift.cashierId !== cashierId) {
-    //   throw new ForbiddenException('Вы не можете закрыть чужую смену');
-    // }
-
-    // Ожидаемая сумма = начальные наличные + все продажи наличными
-    // TODO: В Шаге 4 учитывать только cash/mixed платежи
-    const expectedCash = shift.openingCash + shift.totalSalesAmount;
-    const discrepancy = dto.closingCash - expectedCash;
 
     const closedAt = new Date().toISOString();
+    // Ожидаемые наличные = начало + внесения − выемки + наличные продажи
+    const expectedCash =
+      state.openingCash +
+      state.cashInTotal -
+      state.cashOutTotal +
+      state.cashTotal;
+    const discrepancy = dto.closingCash - expectedCash;
 
-    const closedShift: CloseShiftResponseDto = {
-      ...shift,
+    Object.assign(state, {
       closedAt,
-      status: 'closed',
+      status: 'closed' as const,
       closingCash: dto.closingCash,
-      note: dto.note ?? shift.note,
-      expectedCash,
+      note: dto.note ?? state.note,
+    });
+
+    // Публикуем событие в RabbitMQ
+    await this.rabbitMqProducer.publish('shift.closed', {
+      shiftId: state.shiftId,
+      terminalId: state.terminalId,
+      cashierId,
+      totalSalesAmount: state.totalSalesAmount,
       discrepancy,
-    };
-
-    // Сохраняем закрытое состояние
-    this.shifts.set(dto.shiftId, {
-      ...shift,
       closedAt,
-      status: 'closed',
-      closingCash: dto.closingCash,
-      note: dto.note ?? shift.note,
     });
 
     this.logger.log(
-      `📁 Смена закрыта: shiftId=${dto.shiftId}, ` +
-      `расхождение=${discrepancy} ₸, кассир=${cashierId}`,
+      `📁 Смена закрыта: shiftId=${dto.shiftId}, расхождение=${discrepancy} ₸`,
     );
 
-    return closedShift;
+    return {
+      ...toShiftResponse(state),
+      closedAt,
+      status: 'closed',
+      closingCash: dto.closingCash,
+      expectedCash,
+      discrepancy,
+    };
   }
 
-  // ──────────────────────────────────────────────────────────────────────────
-  //  Продажи (Sales)
-  // ──────────────────────────────────────────────────────────────────────────
+  // ─── Отчёт по смене ──────────────────────────────────────────────────────────
 
   /**
-   * Провести продажу (создать чек).
+   * Сформировать X-отчёт (без закрытия) или Z-отчёт (для закрытой смены).
+   */
+  async getShiftReport(shiftId: string): Promise<ShiftReportDto> {
+    const state = this.getShiftStateOrThrow(shiftId);
+
+    const reportType: 'X' | 'Z' = state.status === 'open' ? 'X' : 'Z';
+
+    const netAmount = state.totalSalesAmount - state.refundsAmount;
+
+    const expectedCashInDrawer =
+      state.openingCash +
+      state.cashInTotal -
+      state.cashOutTotal +
+      state.cashTotal;
+
+    const paymentTotals: PaymentMethodTotalsDto = {
+      cash: state.cashTotal,
+      card: state.cardTotal,
+      kaspiPay: state.kaspiPayTotal,
+      qr: state.qrTotal,
+    };
+
+    const report: ShiftReportDto = {
+      reportType,
+      generatedAt: new Date().toISOString(),
+      shiftId: state.shiftId,
+      terminalId: state.terminalId,
+      cashierId: state.cashierId,
+      openedAt: state.openedAt,
+      closedAt: state.closedAt,
+      status: state.status,
+      totalSalesCount: state.totalSalesCount,
+      totalSalesAmount: state.totalSalesAmount,
+      totalRefundsCount: state.refundsCount,
+      totalRefundsAmount: state.refundsAmount,
+      netAmount,
+      paymentTotals,
+      openingCash: state.openingCash,
+      cashInTotal: state.cashInTotal,
+      cashOutTotal: state.cashOutTotal,
+      expectedCashInDrawer,
+      closingCash: state.closingCash,
+      discrepancy:
+        state.closingCash !== null
+          ? state.closingCash - expectedCashInDrawer
+          : null,
+    };
+
+    this.logger.log(
+      `📊 ${reportType}-отчёт сформирован: shiftId=${shiftId}, чистая выручка=${netAmount} ₸`,
+    );
+
+    return report;
+  }
+
+  // ─── Внесение / Выемка наличных ───────────────────────────────────────────────
+
+  /**
+   * Внесение наличных в кассу (cash-in).
+   */
+  async cashIn(
+    shiftId: string,
+    dto: CashInDto,
+    cashierId: string,
+  ): Promise<CashInOutResponseDto> {
+    const state = this.getOpenShiftStateOrThrow(shiftId);
+
+    const operation: CashInOutResponseDto = {
+      operationId: uuidv4(),
+      operationType: 'cash_in',
+      shiftId,
+      cashierId,
+      amount: dto.amount,
+      reason: dto.reason,
+      createdAt: new Date().toISOString(),
+    };
+
+    state.cashInTotal += dto.amount;
+    state.cashInOutOperations.push(operation);
+
+    this.logger.log(
+      `💵 Cash-In: ${dto.amount} ₸ в смену ${shiftId}. Причина: ${dto.reason}`,
+    );
+
+    return operation;
+  }
+
+  /**
+   * Выемка (инкассация) наличных из кассы (cash-out).
+   */
+  async cashOut(
+    shiftId: string,
+    dto: CashOutDto,
+    cashierId: string,
+  ): Promise<CashInOutResponseDto> {
+    const state = this.getOpenShiftStateOrThrow(shiftId);
+
+    const currentCash =
+      state.openingCash + state.cashInTotal - state.cashOutTotal + state.cashTotal;
+
+    if (dto.amount > currentCash) {
+      throw new BadRequestException(
+        `Недостаточно наличных для выемки. В кассе: ${currentCash} ₸, запрошено: ${dto.amount} ₸`,
+      );
+    }
+
+    const operation: CashInOutResponseDto = {
+      operationId: uuidv4(),
+      operationType: 'cash_out',
+      shiftId,
+      cashierId,
+      amount: dto.amount,
+      reason: dto.reason,
+      createdAt: new Date().toISOString(),
+    };
+
+    state.cashOutTotal += dto.amount;
+    state.cashInOutOperations.push(operation);
+
+    this.logger.log(
+      `🏦 Cash-Out (инкассация): ${dto.amount} ₸ из смены ${shiftId}. Причина: ${dto.reason}`,
+    );
+
+    return operation;
+  }
+
+  // ─── Продажи (Sales) ──────────────────────────────────────────────────────────
+
+  /**
+   * Провести продажу и зафискализировать чек.
    */
   async createSale(
     dto: CreateSaleDto,
     cashierId: string,
   ): Promise<SaleResponseDto> {
-    const shift = this.shifts.get(dto.shiftId);
-
-    if (!shift) {
-      throw new NotFoundException(
-        `Смена с shiftId=${dto.shiftId} не найдена`,
-      );
-    }
-
-    if (shift.status === 'closed') {
-      throw new BadRequestException(
-        'Невозможно провести продажу: смена закрыта',
-      );
-    }
+    const state = this.getOpenShiftStateOrThrow(dto.shiftId);
 
     // Расчёт суммы
     const subtotal = dto.items.reduce((acc, item) => {
@@ -176,26 +356,44 @@ export class PosService {
     const totalAmount = subtotal - totalDiscount;
 
     if (totalAmount < 0) {
-      throw new BadRequestException(
-        'Итоговая сумма чека не может быть отрицательной',
-      );
+      throw new BadRequestException('Итоговая сумма чека не может быть отрицательной');
     }
 
-    // Валидация наличной оплаты
-    if (
-      dto.paymentMethod === PaymentMethod.CASH &&
-      dto.cashAmount !== undefined &&
-      dto.cashAmount < totalAmount
-    ) {
-      throw new BadRequestException(
-        `Недостаточно наличных. Передано: ${dto.cashAmount} ₸, к оплате: ${totalAmount} ₸`,
-      );
-    }
+    // Валидация методов оплаты
+    let changeAmount = 0;
+    let splitPayments: SplitPaymentItemDto[] | null = null;
 
-    const changeAmount =
-      dto.paymentMethod === PaymentMethod.CASH && dto.cashAmount !== undefined
-        ? Math.round(dto.cashAmount - totalAmount)
-        : 0;
+    switch (dto.paymentMethod) {
+      case PaymentMethod.CASH:
+        if (dto.cashAmount !== undefined && dto.cashAmount < totalAmount) {
+          throw new BadRequestException(
+            `Недостаточно наличных. Передано: ${dto.cashAmount} ₸, к оплате: ${totalAmount} ₸`,
+          );
+        }
+        changeAmount =
+          dto.cashAmount !== undefined ? Math.round(dto.cashAmount - totalAmount) : 0;
+        break;
+
+      case PaymentMethod.SPLIT: {
+        if (!dto.splitPayments || dto.splitPayments.length < 2) {
+          throw new BadRequestException(
+            'Для SPLIT оплаты обязательно указать минимум 2 метода в splitPayments',
+          );
+        }
+        const splitTotal = dto.splitPayments.reduce((s, p) => s + p.amount, 0);
+        if (Math.abs(splitTotal - totalAmount) > 0.01) {
+          throw new BadRequestException(
+            `Сумма в splitPayments (${splitTotal} ₸) не совпадает с totalAmount (${totalAmount} ₸)`,
+          );
+        }
+        splitPayments = dto.splitPayments;
+        break;
+      }
+
+      default:
+        // CARD, KASPI_PAY, QR — валидация на стороне платёжного шлюза
+        break;
+    }
 
     const saleItems: SaleItemResponseDto[] = dto.items.map((item) => ({
       saleItemId: uuidv4(),
@@ -206,33 +404,52 @@ export class PosService {
       totalPrice: item.unitPrice * item.quantity - (item.discount ?? 0),
     }));
 
-    const sale: SaleResponseDto = {
-      saleId: uuidv4(),
+    // Временно создаём объект продажи без фискального чека для OFD вызова
+    const saleId = uuidv4();
+    const receiptNumber = `RCP-${Date.now()}`;
+    const createdAt = new Date().toISOString();
+
+    const partialSale: SaleResponseDto = {
+      saleId,
       shiftId: dto.shiftId,
       cashierId,
       customerId: dto.customerId ?? null,
-      receiptNumber: `RCP-${Date.now()}`,
+      receiptNumber,
       items: saleItems,
       subtotal,
       totalDiscount,
       totalAmount,
       paymentMethod: dto.paymentMethod,
+      splitPayments,
       cashAmount: dto.cashAmount ?? null,
       changeAmount,
       status: 'completed',
-      createdAt: new Date().toISOString(),
+      fiscalReceipt: {} as FiscalReceiptDto, // будет заполнено ниже
+      createdAt,
     };
 
-    this.sales.set(sale.saleId, sale);
+    // Фискализация через ОФД
+    const fiscalReceipt = await this.ofdService.registerSaleReceipt(partialSale);
+    const sale: SaleResponseDto = { ...partialSale, fiscalReceipt };
 
-    // Обновляем счётчики смены
-    const currentShift = this.shifts.get(dto.shiftId)!;
-    currentShift.totalSalesAmount += totalAmount;
-    currentShift.totalSalesCount += 1;
+    this.sales.set(saleId, sale);
+
+    // Обновляем агрегаты смены
+    this.updateShiftSaleTotals(state, dto.paymentMethod, totalAmount, splitPayments);
+
+    // Публикуем событие в RabbitMQ
+    await this.rabbitMqProducer.publish('sale.created', {
+      saleId: sale.saleId,
+      shiftId: sale.shiftId,
+      cashierId,
+      totalAmount,
+      paymentMethod: dto.paymentMethod,
+      createdAt,
+    });
 
     this.logger.log(
-      `🧾 Продажа: saleId=${sale.saleId}, сумма=${totalAmount} ₸, ` +
-      `способ оплаты=${dto.paymentMethod}, кассир=${cashierId}`,
+      `🧾 Продажа: saleId=${saleId}, сумма=${totalAmount} ₸, ` +
+      `оплата=${dto.paymentMethod}, фискальный=${fiscalReceipt.fiscalReceiptNumber}`,
     );
 
     return sale;
@@ -246,34 +463,17 @@ export class PosService {
     cashierId: string,
   ): Promise<RefundResponseDto> {
     const originalSale = this.sales.get(dto.saleId);
-
     if (!originalSale) {
-      throw new NotFoundException(
-        `Продажа с saleId=${dto.saleId} не найдена`,
-      );
+      throw new NotFoundException(`Продажа saleId=${dto.saleId} не найдена`);
     }
 
-    const shift = this.shifts.get(dto.shiftId);
-
-    if (!shift) {
-      throw new NotFoundException(
-        `Смена с shiftId=${dto.shiftId} не найдена`,
-      );
-    }
-
-    if (shift.status === 'closed') {
-      throw new BadRequestException(
-        'Невозможно оформить возврат: смена закрыта',
-      );
-    }
+    const state = this.getOpenShiftStateOrThrow(dto.shiftId);
 
     let refundAmount: number;
 
     if (!dto.items || dto.items.length === 0) {
-      // Полный возврат
       refundAmount = originalSale.totalAmount;
     } else {
-      // Частичный возврат
       refundAmount = dto.items.reduce((acc, refundItem) => {
         const saleItem = originalSale.items.find(
           (i) => i.saleItemId === refundItem.saleItemId,
@@ -281,24 +481,28 @@ export class PosService {
 
         if (!saleItem) {
           throw new NotFoundException(
-            `Позиция saleItemId=${refundItem.saleItemId} не найдена в чеке saleId=${dto.saleId}`,
+            `Позиция saleItemId=${refundItem.saleItemId} не найдена в чеке ${dto.saleId}`,
           );
         }
 
         if (refundItem.quantity > saleItem.quantity) {
           throw new BadRequestException(
-            `Количество для возврата (${refundItem.quantity}) по позиции ${saleItem.productId} ` +
+            `Количество для возврата (${refundItem.quantity}) по товару ${saleItem.productId} ` +
             `превышает количество в чеке (${saleItem.quantity})`,
           );
         }
 
-        // Пропорциональный расчёт с учётом скидки
-        const effectiveUnitPrice =
-          saleItem.totalPrice / saleItem.quantity;
-
+        const effectiveUnitPrice = saleItem.totalPrice / saleItem.quantity;
         return acc + effectiveUnitPrice * refundItem.quantity;
       }, 0);
     }
+
+    // Фискализация возврата
+    const fiscalReceipt = await this.ofdService.registerRefundReceipt(
+      uuidv4(),
+      originalSale.fiscalReceipt.fiscalReceiptNumber,
+      refundAmount,
+    );
 
     const refund: RefundResponseDto = {
       refundId: uuidv4(),
@@ -310,15 +514,78 @@ export class PosService {
       refundAmount: Math.round(refundAmount),
       reason: dto.reason,
       isFullRefund: !dto.items || dto.items.length === 0,
+      fiscalReceipt,
       createdAt: new Date().toISOString(),
     };
 
+    state.refundsCount += 1;
+    state.refundsAmount += Math.round(refundAmount);
+
     this.logger.log(
-      `↩️ Возврат: refundId=${refund.refundId}, ` +
-      `originalSaleId=${dto.saleId}, сумма=${refund.refundAmount} ₸, ` +
-      `кассир=${cashierId}`,
+      `↩️ Возврат: refundId=${refund.refundId}, сумма=${refund.refundAmount} ₸, ` +
+      `фискальный=${fiscalReceipt.fiscalReceiptNumber}`,
     );
 
     return refund;
+  }
+
+  // ─── Private helpers ─────────────────────────────────────────────────────────
+
+  private getShiftStateOrThrow(shiftId: string): ShiftState {
+    const state = this.shiftStates.get(shiftId);
+    if (!state) {
+      throw new NotFoundException(`Смена shiftId=${shiftId} не найдена`);
+    }
+    return state;
+  }
+
+  private getOpenShiftStateOrThrow(shiftId: string): ShiftState {
+    const state = this.getShiftStateOrThrow(shiftId);
+    if (state.status === 'closed') {
+      throw new BadRequestException(`Смена ${shiftId} закрыта. Операция невозможна.`);
+    }
+    return state;
+  }
+
+  /**
+   * Обновляет агрегаты по методам оплаты в состоянии смены.
+   */
+  private updateShiftSaleTotals(
+    state: ShiftState,
+    method: PaymentMethod,
+    totalAmount: number,
+    splitPayments: SplitPaymentItemDto[] | null,
+  ): void {
+    state.totalSalesCount += 1;
+    state.totalSalesAmount += totalAmount;
+
+    if (method === PaymentMethod.SPLIT && splitPayments) {
+      for (const sp of splitPayments) {
+        this.addToMethodTotal(state, sp.method as PaymentMethod, sp.amount);
+      }
+    } else {
+      this.addToMethodTotal(state, method, totalAmount);
+    }
+  }
+
+  private addToMethodTotal(
+    state: ShiftState,
+    method: PaymentMethod,
+    amount: number,
+  ): void {
+    switch (method) {
+      case PaymentMethod.CASH:
+        state.cashTotal += amount;
+        break;
+      case PaymentMethod.CARD:
+        state.cardTotal += amount;
+        break;
+      case PaymentMethod.KASPI_PAY:
+        state.kaspiPayTotal += amount;
+        break;
+      case PaymentMethod.QR:
+        state.qrTotal += amount;
+        break;
+    }
   }
 }
