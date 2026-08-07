@@ -41,14 +41,23 @@ public sealed class RabbitMQPublisher : IRabbitMQPublisher, IDisposable
         var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(eventMessage));
 
         _channel.BasicPublish(
-            exchange: "chetka_wms",
-            routingKey: eventName,
+            exchange: "chetka.events",
+            routingKey: GetRoutingKey(eventName),
             basicProperties: null,
             body: body);
 
-        _logger.LogInformation("Published event {EventName}", eventName);
+        _logger.LogInformation("Published event {EventName} with routing key {RoutingKey}", eventName, GetRoutingKey(eventName));
         return Task.CompletedTask;
     }
+
+    private static string GetRoutingKey(string eventName) => eventName switch
+    {
+        "StockReceivedIntegrationEvent" => "stock.updated",
+        "StockWrittenOffIntegrationEvent" => "stock.updated",
+        "InventoryFinishedIntegrationEvent" => "inventory.finished",
+        "ExpirationDetectedIntegrationEvent" => "stock.expiration_warning",
+        _ => eventName.ToLowerInvariant()
+    };
 
     public void Dispose()
     {
