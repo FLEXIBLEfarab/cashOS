@@ -1,0 +1,12 @@
+# Нормализация line endings
+* text=auto eol=lf
+
+# Бинарные файлы — не трогать
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.zip binary
+*.exe binary
+*.dll binary

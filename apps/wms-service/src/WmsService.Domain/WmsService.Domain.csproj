@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>WmsService.Domain</AssemblyName>
+    <RootNamespace>WmsService.Domain</RootNamespace>
+  </PropertyGroup>
+
+</Project>

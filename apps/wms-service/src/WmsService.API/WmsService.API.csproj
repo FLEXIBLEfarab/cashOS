@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <AssemblyName>WmsService.API</AssemblyName>
+    <RootNamespace>WmsService.API</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Serilog.AspNetCore" Version="8.0.1" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\WmsService.Application\WmsService.Application.csproj" />
+    <ProjectReference Include="..\WmsService.Infrastructure\WmsService.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>
