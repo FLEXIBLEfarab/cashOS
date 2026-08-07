@@ -1,37 +1,60 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+
+// ─── Бизнес-модули ────────────────────────────────────────────────────────────
 import { AuthModule } from './modules/auth/auth.module';
 import { PosModule } from './modules/pos/pos.module';
+import { MarketplaceModule } from './modules/marketplace/marketplace.module';
+import { ErpIntegrationModule } from './modules/erp-integration/erp-integration.module';
+
+// ─── Инфраструктурные модули ──────────────────────────────────────────────────
+import { RabbitMqModule } from './infrastructure/rabbitmq/rabbitmq.module';
+import { RedisModule } from './infrastructure/redis/redis.module';
+import { WebsocketModule } from './infrastructure/websocket/websocket.module';
 
 @Module({
   imports: [
-    // ─── Config ──────────────────────────────────────────────────────────────
+    // ─── Глобальная конфигурация (.env) ─────────────────────────────────────
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: '.env',
-      cache: true,
+      envFilePath: '../../.env',
+      expandVariables: true,
     }),
 
-    // ─── Database ─────────────────────────────────────────────────────────────
+    // ─── База данных (TypeORM + PostgreSQL) ───────────────────────────────────
     TypeOrmModule.forRootAsync({
-      inject: [ConfigService],
+      imports: [ConfigModule],
       useFactory: (config: ConfigService) => ({
         type: 'postgres',
-        url: config.get<string>('DATABASE_URL'),
-        autoLoadEntities: true,
+        host: config.get<string>('DB_HOST', 'localhost'),
+        port: config.get<number>('DB_PORT', 5432),
+        username: config.get<string>('DB_USER', 'chetka'),
+        password: config.get<string>('DB_PASSWORD', 'chetka_secret'),
+        database: config.get<string>('DB_NAME', 'chetka_db'),
+        entities: [__dirname + '/**/*.entity{.ts,.js}'],
         synchronize: config.get<string>('NODE_ENV') === 'development',
         logging: config.get<string>('NODE_ENV') === 'development',
+        retryAttempts: 5,
+        retryDelay: 3000,
         ssl:
-          config.get<string>('NODE_ENV') === 'production'
+          config.get<string>('DB_SSL') === 'true'
             ? { rejectUnauthorized: false }
             : false,
       }),
+      inject: [ConfigService],
     }),
 
-    // ─── Feature Modules ──────────────────────────────────────────────────────
+    // ─── Инфраструктура (Global) ─────────────────────────────────────────────
+    RabbitMqModule,   // @Global() — доступен во всех модулях
+    RedisModule,      // @Global() — доступен во всех модулях
+    WebsocketModule,  // PosGateway для real-time событий
+
+    // ─── Бизнес-модули ───────────────────────────────────────────────────────
     AuthModule,
     PosModule,
+    MarketplaceModule,
+    ErpIntegrationModule,
   ],
 })
 export class AppModule {}
