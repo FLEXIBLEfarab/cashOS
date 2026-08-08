@@ -47,6 +47,7 @@ public static class DependencyInjection
 
         services.Configure<RabbitMQOptions>(configuration.GetSection("RabbitMQ"));
         services.AddSingleton<IRabbitMQPublisher, RabbitMQPublisher>();
+        services.AddSingleton<IEventPublisher, EventPublisher>();
 
         return services;
     }

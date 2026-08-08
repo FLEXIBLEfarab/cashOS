@@ -1,6 +1,7 @@
 using MediatR;
 using WmsService.Application.Common.Interfaces;
 using WmsService.Domain.Entities;
+using WmsService.Domain.Events;
 
 namespace WmsService.Application.Features.StockOperations.Commands.ReceiveStock;
 
@@ -35,17 +36,20 @@ public sealed class ReceiveStockCommandHandler : IRequestHandler<ReceiveStockCom
     private readonly IBatchRepository _batchRepository;
     private readonly IStockRepository _stockRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IEventPublisher _eventPublisher;
 
     public ReceiveStockCommandHandler(
         IRepository<ReceivingDocument> receivingDocuments,
         IBatchRepository batchRepository,
         IStockRepository stockRepository,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        IEventPublisher eventPublisher)
     {
         _receivingDocuments = receivingDocuments;
         _batchRepository = batchRepository;
         _stockRepository = stockRepository;
         _unitOfWork = unitOfWork;
+        _eventPublisher = eventPublisher;
     }
 
     public async Task<ReceiveStockResponse> Handle(ReceiveStockCommand request, CancellationToken cancellationToken)
@@ -60,6 +64,7 @@ public sealed class ReceiveStockCommandHandler : IRequestHandler<ReceiveStockCom
         await _receivingDocuments.AddAsync(document, cancellationToken);
 
         var batchIds = new List<Guid>();
+        var publishedBatches = new List<(Batch Batch, decimal Quantity)>();
 
         foreach (var item in request.Items)
         {
@@ -78,6 +83,17 @@ public sealed class ReceiveStockCommandHandler : IRequestHandler<ReceiveStockCom
 
             await _batchRepository.AddAsync(batch, cancellationToken);
             batchIds.Add(batch.Id);
+            publishedBatches.Add((batch, item.Quantity));
+
+            document.Items.Add(new ReceivingDocumentItem
+            {
+                ReceivingDocumentId = document.Id,
+                ProductId = item.ProductId,
+                Quantity = item.Quantity,
+                Price = item.UnitPrice,
+                BatchNumber = batchNumber,
+                ExpirationDate = item.ExpirationDate
+            });
 
             var stock = await _stockRepository.GetByProductAndWarehouseAsync(item.ProductId, request.WarehouseId, cancellationToken);
             if (stock is null)
@@ -92,6 +108,11 @@ public sealed class ReceiveStockCommandHandler : IRequestHandler<ReceiveStockCom
         }
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        foreach (var (batch, quantity) in publishedBatches)
+        {
+            await _eventPublisher.PublishAsync(new StockReceivedEvent(batch, quantity), cancellationToken);
+        }
 
         return new ReceiveStockResponse
         {
