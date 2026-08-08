@@ -9,7 +9,6 @@ using WmsService.Infrastructure.Messaging.RabbitMQ;
 using WmsService.Infrastructure.Persistence;
 using WmsService.Infrastructure.Persistence.Repositories;
 using WmsService.Infrastructure.Services;
-using WmsService.Infrastructure.SignalR;
 using WmsService.Infrastructure.SignalR.Hubs;
 
 namespace WmsService.Infrastructure;
@@ -18,31 +17,22 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
-        // DbContext
         services.AddDbContext<WmsDbContext>(options =>
             options.UseNpgsql(
                 configuration.GetConnectionString("DefaultConnection"),
                 b => b.MigrationsAssembly(typeof(WmsDbContext).Assembly.FullName)));
 
-        services.AddScoped<IWmsDbContext>(provider => provider.GetRequiredService<WmsDbContext>());
-
-        // Unit of Work
+        services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+        services.AddScoped<IBatchRepository, BatchRepository>();
+        services.AddScoped<IStockRepository, StockRepository>();
+        services.AddScoped<IMovementRepository, MovementRepository>();
+        services.AddScoped<IExpirationCheckLogRepository, ExpirationCheckLogRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-        // Repositories
-        services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-        services.AddScoped<IStockRepository, StockRepository>();
-        services.AddScoped<IBatchRepository, BatchRepository>();
-        services.AddScoped<IMovementRepository, MovementRepository>();
-
-        // Services
-        services.AddScoped<IDateTimeService, DateTimeService>();
-        services.AddScoped<ICurrentUserService, CurrentUserService>();
-        services.AddScoped<IEventPublisher, EventPublisher>();
-        services.AddScoped<IRealTimeNotifier, RealTimeNotifier>();
+        services.AddScoped<IWmsNotificationService, WmsNotificationService>();
+        services.AddScoped<IReportService, ReportService>();
         services.AddHttpContextAccessor();
 
-        // Hangfire
         services.AddHangfire(config => config
             .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
             .UseSimpleAssemblyNameTypeSerializer()
@@ -53,11 +43,9 @@ public static class DependencyInjection
         services.AddHangfireServer();
         services.AddScoped<IExpirationCheckJob, ExpirationCheckJob>();
 
-        // SignalR
         services.AddSignalR();
 
-        // RabbitMQ
-        services.Configure<RabbitMQSettings>(configuration.GetSection("RabbitMQ"));
+        services.Configure<RabbitMQOptions>(configuration.GetSection("RabbitMQ"));
         services.AddSingleton<IRabbitMQPublisher, RabbitMQPublisher>();
 
         return services;

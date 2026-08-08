@@ -1,10 +1,10 @@
-using MediatR;
+﻿using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace WmsService.Application.Common.Behaviors;
 
 public sealed class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
-    where TRequest : IRequest<TResponse>
+    where TRequest : notnull
 {
     private readonly ILogger<LoggingBehavior<TRequest, TResponse>> _logger;
 
@@ -16,11 +16,9 @@ public sealed class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRe
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
         var requestName = typeof(TRequest).Name;
-        _logger.LogInformation("WMS Handling request: {RequestName}", requestName);
-
+        _logger.LogInformation("[MediatR] Handling {RequestName}", requestName);
         var response = await next();
-
-        _logger.LogInformation("WMS Handled request: {RequestName}", requestName);
+        _logger.LogInformation("[MediatR] Handled {RequestName}", requestName);
         return response;
     }
 }

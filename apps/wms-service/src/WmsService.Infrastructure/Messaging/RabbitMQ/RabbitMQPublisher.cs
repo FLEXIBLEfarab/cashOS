@@ -3,6 +3,7 @@ using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
+using WmsService.Application.Common.Interfaces;
 
 namespace WmsService.Infrastructure.Messaging.RabbitMQ;
 
@@ -11,54 +12,50 @@ public sealed class RabbitMQPublisher : IRabbitMQPublisher, IDisposable
     private readonly IConnection _connection;
     private readonly IModel _channel;
     private readonly ILogger<RabbitMQPublisher> _logger;
-    private readonly RabbitMQSettings _settings;
-    private bool _disposed;
+    private readonly RabbitMQOptions _options;
 
-    public RabbitMQPublisher(IOptions<RabbitMQSettings> options, ILogger<RabbitMQPublisher> logger)
+    public RabbitMQPublisher(IOptions<RabbitMQOptions> options, ILogger<RabbitMQPublisher> logger)
     {
-        _settings = options.Value;
+        _options = options.Value;
         _logger = logger;
 
         var factory = new ConnectionFactory
         {
-            HostName = _settings.HostName,
-            UserName = _settings.UserName,
-            Password = _settings.Password,
-            VirtualHost = _settings.VirtualHost,
-            Port = _settings.Port
+            HostName = _options.HostName,
+            Port = _options.Port,
+            UserName = _options.UserName,
+            Password = _options.Password,
+            VirtualHost = _options.VirtualHost,
+            AutomaticRecoveryEnabled = true
         };
 
         _connection = factory.CreateConnection();
         _channel = _connection.CreateModel();
+        _channel.ExchangeDeclare(_options.ExchangeName, ExchangeType.Topic, durable: true);
     }
 
-    public Task PublishAsync<TEvent>(TEvent eventMessage, CancellationToken cancellationToken = default) where TEvent : class
+    public Task PublishAsync<T>(string routingKey, T message, CancellationToken cancellationToken = default) where T : class
     {
-        if (_disposed)
-            throw new ObjectDisposedException(nameof(RabbitMQPublisher));
+        var body = JsonSerializer.Serialize(message);
+        var bytes = Encoding.UTF8.GetBytes(body);
 
-        var eventName = typeof(TEvent).Name;
-        var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(eventMessage));
+        var properties = _channel.CreateBasicProperties();
+        properties.ContentType = "application/json";
+        properties.DeliveryMode = 2;
 
         _channel.BasicPublish(
-            exchange: "chetka_wms",
-            routingKey: eventName,
-            basicProperties: null,
-            body: body);
+            exchange: _options.ExchangeName,
+            routingKey: routingKey,
+            basicProperties: properties,
+            body: bytes);
 
-        _logger.LogInformation("Published event {EventName}", eventName);
+        _logger.LogInformation("[RabbitMQ] Published to {RoutingKey}: {Message}", routingKey, body);
         return Task.CompletedTask;
     }
 
     public void Dispose()
     {
-        if (!_disposed)
-        {
-            _channel?.Close();
-            _connection?.Close();
-            _channel?.Dispose();
-            _connection?.Dispose();
-            _disposed = true;
-        }
+        _channel?.Close();
+        _connection?.Close();
     }
 }

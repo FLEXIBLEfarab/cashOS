@@ -46,4 +46,23 @@ public sealed class BatchRepository : Repository<Batch>, IBatchRepository
             .AsNoTracking()
             .ToListAsync(cancellationToken);
     }
+
+    public async Task<IReadOnlyList<Batch>> GetAllExpiredAsync(CancellationToken cancellationToken = default)
+    {
+        var now = DateTime.UtcNow.Date;
+        return await _dbSet
+            .Include(b => b.Product)
+            .Where(b => b.ExpirationDate < now && b.CurrentQuantity > 0)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<Batch>> GetAllExpiringSoonAsync(int days, CancellationToken cancellationToken = default)
+    {
+        var now = DateTime.UtcNow.Date;
+        var threshold = now.AddDays(days);
+        return await _dbSet
+            .Include(b => b.Product)
+            .Where(b => b.ExpirationDate >= now && b.ExpirationDate <= threshold && b.CurrentQuantity > 0 && !b.IsBlocked)
+            .ToListAsync(cancellationToken);
+    }
 }

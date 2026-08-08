@@ -1,11 +1,10 @@
 using FluentValidation;
 using MediatR;
-using ValidationException = WmsService.Application.Common.Exceptions.ValidationException;
 
 namespace WmsService.Application.Common.Behaviors;
 
 public sealed class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
-    where TRequest : IRequest<TResponse>
+    where TRequest : notnull
 {
     private readonly IEnumerable<IValidator<TRequest>> _validators;
 
@@ -24,20 +23,12 @@ public sealed class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<
             _validators.Select(v => v.ValidateAsync(context, cancellationToken)));
 
         var failures = validationResults
-            .Where(r => r.Errors.Count > 0)
             .SelectMany(r => r.Errors)
+            .Where(f => f != null)
             .ToList();
 
-        if (failures.Count > 0)
-        {
-            var errors = failures
-                .GroupBy(e => e.PropertyName)
-                .ToDictionary(
-                    g => g.Key,
-                    g => g.Select(e => e.ErrorMessage).ToArray());
-
-            throw new ValidationException(errors);
-        }
+        if (failures.Any())
+            throw new ValidationException(failures);
 
         return await next();
     }

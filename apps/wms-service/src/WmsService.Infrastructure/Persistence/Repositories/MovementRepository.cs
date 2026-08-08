@@ -11,28 +11,30 @@ public sealed class MovementRepository : Repository<StockMovement>, IMovementRep
     public async Task<IReadOnlyList<StockMovement>> GetByWarehouseAsync(Guid warehouseId, DateTime from, DateTime to, CancellationToken cancellationToken = default)
     {
         return await _dbSet
-            .Include(m => m.Product)
+            .Include(m => m.Stock).ThenInclude(s => s.Product)
             .Include(m => m.Batch)
-            .Where(m => m.WarehouseId == warehouseId && m.PerformedAt >= from && m.PerformedAt <= to)
-            .OrderByDescending(m => m.PerformedAt)
+            .Where(m => (m.SourceWarehouseId == warehouseId || m.TargetWarehouseId == warehouseId || m.Stock.WarehouseId == warehouseId)
+                        && m.CreatedAt >= from && m.CreatedAt <= to)
+            .OrderByDescending(m => m.CreatedAt)
             .AsNoTracking()
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<IReadOnlyList<StockMovement>> GetByDocumentAsync(string documentId, string documentType, CancellationToken cancellationToken = default)
+    // NOTE: StockMovement сейчас не хранит DocumentId/DocumentType (только
+    // ReceivingDocument/WriteOff их имеют). Метод пока нигде не вызывается —
+    // возвращает пустой список до тех пор, пока у StockMovement не появится
+    // привязка к документу-источнику.
+    public Task<IReadOnlyList<StockMovement>> GetByDocumentAsync(string documentId, string documentType, CancellationToken cancellationToken = default)
     {
-        return await _dbSet
-            .Include(m => m.Product)
-            .Where(m => m.DocumentId == documentId && m.DocumentType == documentType)
-            .AsNoTracking()
-            .ToListAsync(cancellationToken);
+        return Task.FromResult<IReadOnlyList<StockMovement>>(Array.Empty<StockMovement>());
     }
 
     public async Task<IReadOnlyList<StockMovement>> GetByProductAsync(Guid productId, Guid warehouseId, CancellationToken cancellationToken = default)
     {
         return await _dbSet
-            .Where(m => m.ProductId == productId && m.WarehouseId == warehouseId)
-            .OrderByDescending(m => m.PerformedAt)
+            .Include(m => m.Stock)
+            .Where(m => m.Stock.ProductId == productId && m.Stock.WarehouseId == warehouseId)
+            .OrderByDescending(m => m.CreatedAt)
             .AsNoTracking()
             .ToListAsync(cancellationToken);
     }

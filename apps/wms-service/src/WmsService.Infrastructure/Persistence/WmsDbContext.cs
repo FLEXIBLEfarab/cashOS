@@ -1,10 +1,9 @@
 using Microsoft.EntityFrameworkCore;
-using WmsService.Application.Common.Interfaces;
 using WmsService.Domain.Entities;
 
 namespace WmsService.Infrastructure.Persistence;
 
-public sealed class WmsDbContext : DbContext, IWmsDbContext
+public sealed class WmsDbContext : DbContext
 {
     public WmsDbContext(DbContextOptions<WmsDbContext> options) : base(options) { }
 

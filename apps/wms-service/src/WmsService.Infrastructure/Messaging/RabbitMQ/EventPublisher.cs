@@ -17,7 +17,8 @@ public sealed class EventPublisher : IEventPublisher
 
     public async Task PublishAsync<TEvent>(TEvent eventMessage, CancellationToken cancellationToken = default) where TEvent : class
     {
-        await _rabbitMQPublisher.PublishAsync(eventMessage, cancellationToken);
+        var routingKey = $"wms.{typeof(TEvent).Name}";
+        await _rabbitMQPublisher.PublishAsync(routingKey, eventMessage, cancellationToken);
         _logger.LogInformation("Published event {EventType}", typeof(TEvent).Name);
     }
 }

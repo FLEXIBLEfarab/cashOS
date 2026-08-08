@@ -1,57 +1,47 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using WmsService.Application.DTOs;
-using WmsService.Application.Queries;
+using WmsService.Application.Common.Interfaces;
+using WmsService.Domain.Entities;
 
 namespace WmsService.API.Controllers;
 
-/// <summary>
-/// Управление складами: просмотр, создание (чтение остатков через StockController).
-/// </summary>
 [ApiController]
-[Route("v1/[controller]")]
-[Produces("application/json")]
-public sealed class WarehouseController : ControllerBase
+[Route("api/v1/[controller]")]
+public class WarehouseController : ControllerBase
 {
-    private readonly IMediator _mediator;
-    private readonly ILogger<WarehouseController> _logger;
+    private readonly IRepository<Warehouse> _warehouseRepo;
+    private readonly IWmsNotificationService _notificationService;
 
-    public WarehouseController(IMediator mediator, ILogger<WarehouseController> logger)
+    public WarehouseController(IRepository<Warehouse> warehouseRepo, IWmsNotificationService notificationService)
     {
-        _mediator = mediator;
-        _logger = logger;
+        _warehouseRepo = warehouseRepo;
+        _notificationService = notificationService;
     }
 
-    /// <summary>
-    /// Получить список всех складов.
-    /// </summary>
-    /// <param name="cancellationToken">Токен отмены.</param>
-    /// <returns>Список складов.</returns>
-    /// <response code="200">Список складов.</response>
     [HttpGet]
-    [ProducesResponseType(typeof(IReadOnlyList<WarehouseDto>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<IReadOnlyList<WarehouseDto>>> GetAll(CancellationToken cancellationToken)
+    [ProducesResponseType(typeof(ICollection<Warehouse>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<ICollection<Warehouse>>> GetAll(CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new GetWarehousesQuery(), cancellationToken);
+        var result = await _warehouseRepo.GetAllAsync(cancellationToken);
         return Ok(result);
     }
 
-    /// <summary>
-    /// Получить склад по идентификатору.
-    /// </summary>
-    /// <param name="id">Идентификатор склада.</param>
-    /// <param name="cancellationToken">Токен отмены.</param>
-    /// <returns>Данные склада.</returns>
-    /// <response code="200">Склад найден.</response>
-    /// <response code="404">Склад не найден.</response>
     [HttpGet("{id:guid}")]
-    [ProducesResponseType(typeof(WarehouseDto), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<WarehouseDto>> GetById([FromRoute] Guid id, CancellationToken cancellationToken)
+    [ProducesResponseType(typeof(Warehouse), StatusCodes.Status200OK)]
+    public async Task<ActionResult<Warehouse>> GetById(Guid id, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new GetWarehouseByIdQuery(id), cancellationToken);
-        if (result is null)
-            return NotFound();
-        return Ok(result);
+        var result = await _warehouseRepo.GetByIdAsync(id, cancellationToken);
+        return result == null ? NotFound() : Ok(result);
+    }
+
+    [HttpPost]
+    [ProducesResponseType(typeof(Warehouse), StatusCodes.Status201Created)]
+    public async Task<ActionResult<Warehouse>> Create(
+        [FromBody] Warehouse warehouse,
+        CancellationToken cancellationToken)
+    {
+        await _warehouseRepo.AddAsync(warehouse, cancellationToken);
+        await _notificationService.NotifyWarehouseUpdatedAsync(warehouse.Id, warehouse.Name, cancellationToken);
+        return CreatedAtAction(nameof(GetById), new { id = warehouse.Id }, warehouse);
     }
 }
