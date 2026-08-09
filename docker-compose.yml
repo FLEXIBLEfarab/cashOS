@@ -16,6 +16,7 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./infra/postgres-init:/docker-entrypoint-initdb.d
     networks:
       - chetka_network
     healthcheck:
@@ -105,24 +106,31 @@ services:
       - /app/node_modules
 
   # ─────────────────────────────────────────────────
-  #  WMS Service (.NET 8) — раскомментировать после настройки
+  #  WMS Service (.NET 8)
   # ─────────────────────────────────────────────────
-  # wms-service:
-  #   build:
-  #     context: ./apps/wms-service
-  #     dockerfile: Dockerfile
-  #   container_name: chetka_wms
-  #   restart: unless-stopped
-  #   depends_on:
-  #     postgres:
-  #       condition: service_healthy
-  #   environment:
-  #     ASPNETCORE_ENVIRONMENT: Development
-  #     ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=chetka_wms;Username=${POSTGRES_USER:-chetka};Password=${POSTGRES_PASSWORD:-chetka_secret}"
-  #   ports:
-  #     - "5000:8080"
-  #   networks:
-  #     - chetka_network
+  wms-service:
+    build:
+      context: ./apps/wms-service
+      dockerfile: Dockerfile
+    container_name: chetka_wms
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=chetka_wms;Username=${POSTGRES_USER:-chetka};Password=${POSTGRES_PASSWORD:-chetka_secret}"
+      RabbitMQ__HostName: rabbitmq
+      RabbitMQ__Port: 5672
+      RabbitMQ__UserName: ${RABBITMQ_USER:-chetka}
+      RabbitMQ__Password: ${RABBITMQ_PASSWORD:-rabbitmq_secret}
+      RabbitMQ__VirtualHost: chetka_vhost
+    ports:
+      - "5000:8080"
+    networks:
+      - chetka_network
 
 volumes:
   postgres_data:

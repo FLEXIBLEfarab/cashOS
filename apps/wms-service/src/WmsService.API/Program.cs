@@ -3,7 +3,6 @@ using WmsService.API.Middleware;
 using WmsService.Application;
 using WmsService.Infrastructure;
 using WmsService.Infrastructure.SignalR.Hubs;
-using WmsService.Infrastructure.Hangfire.Jobs;
 using Serilog;
 
 Log.Logger = new LoggerConfiguration()
@@ -68,6 +67,13 @@ try
     builder.Services.AddHealthChecks();
 
     var app = builder.Build();
+
+    using (var scope = app.Services.CreateScope())
+    {
+        var dbContext = scope.ServiceProvider.GetRequiredService<WmsService.Infrastructure.Persistence.WmsDbContext>();
+        await dbContext.Database.MigrateAsync();
+        Log.Information("✅ Миграции базы данных применены");
+    }
 
     app.UseExceptionHandling();
     app.UseSerilogRequestLogging();
