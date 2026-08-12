@@ -7,6 +7,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { PosModule } from './modules/pos/pos.module';
 import { MarketplaceModule } from './modules/marketplace/marketplace.module';
 import { ErpIntegrationModule } from './modules/erp-integration/erp-integration.module';
+import { ProductsModule } from './modules/products/products.module';
 
 // ─── Инфраструктурные модули ──────────────────────────────────────────────────
 import { RabbitMqModule } from './infrastructure/rabbitmq/rabbitmq.module';
@@ -55,6 +56,7 @@ import { WebsocketModule } from './infrastructure/websocket/websocket.module';
     PosModule,
     MarketplaceModule,
     ErpIntegrationModule,
+    ProductsModule,   // Модуль товаров (Developer 2): Product, Category, Brand, Unit, Tax, Barcode, Price, StockInfo
   ],
 })
 export class AppModule {}
