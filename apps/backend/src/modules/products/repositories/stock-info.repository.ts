@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, IsNull } from 'typeorm';
 import { StockInfo } from '../entities/stock-info.entity';
 import { StockInfoFilterDto } from '../dto/stock-info/stock-info-filter.dto';
 
@@ -41,11 +41,11 @@ export class StockInfoRepository {
   }
 
   async findOne(id: string): Promise<StockInfo | null> {
-    return this.repo.findOne({ where: { id, deleted_at: null }, relations: ['branch', 'warehouse'] });
+    return this.repo.findOne({ where: { id, deleted_at: IsNull() }, relations: ['branch', 'warehouse'] });
   }
 
   async findByProductId(product_id: string): Promise<StockInfo[]> {
-    return this.repo.find({ where: { product_id, deleted_at: null }, relations: ['branch', 'warehouse'] });
+    return this.repo.find({ where: { product_id, deleted_at: IsNull() }, relations: ['branch', 'warehouse'] });
   }
 
   async create(entity: Partial<StockInfo>): Promise<StockInfo> {

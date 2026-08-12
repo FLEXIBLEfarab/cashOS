@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, IsNull } from 'typeorm';
 import { Barcode } from '../entities/barcode.entity';
 import { BarcodeFilterDto } from '../dto/barcode/barcode-filter.dto';
 
@@ -36,15 +36,15 @@ export class BarcodeRepository {
   }
 
   async findOne(id: string): Promise<Barcode | null> {
-    return this.repo.findOne({ where: { id, deleted_at: null } });
+    return this.repo.findOne({ where: { id, deleted_at: IsNull() } });
   }
 
   async findByCode(code: string): Promise<Barcode | null> {
-    return this.repo.findOne({ where: { code, deleted_at: null } });
+    return this.repo.findOne({ where: { code, deleted_at: IsNull() } });
   }
 
   async findByProductId(product_id: string): Promise<Barcode[]> {
-    return this.repo.find({ where: { product_id, deleted_at: null } });
+    return this.repo.find({ where: { product_id, deleted_at: IsNull() } });
   }
 
   async create(entity: Partial<Barcode>): Promise<Barcode> {

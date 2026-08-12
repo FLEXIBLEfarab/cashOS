@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, IsNull } from 'typeorm';
 import { Unit } from '../entities/unit.entity';
 import { UnitFilterDto } from '../dto/unit/unit-filter.dto';
 
@@ -33,11 +33,11 @@ export class UnitRepository {
   }
 
   async findOne(id: string): Promise<Unit | null> {
-    return this.repo.findOne({ where: { id, deleted_at: null } });
+    return this.repo.findOne({ where: { id, deleted_at: IsNull() } });
   }
 
   async findByCode(code: string): Promise<Unit | null> {
-    return this.repo.findOne({ where: { code, deleted_at: null } });
+    return this.repo.findOne({ where: { code, deleted_at: IsNull() } });
   }
 
   async create(entity: Partial<Unit>): Promise<Unit> {

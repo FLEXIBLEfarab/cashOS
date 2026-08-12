@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, DataSource } from 'typeorm';
+import { Repository, DataSource, IsNull } from 'typeorm';
 import { Category } from '../entities/category.entity';
 import { CategoryFilterDto } from '../dto/category/category-filter.dto';
 
@@ -44,7 +44,7 @@ export class CategoryRepository {
 
   async findOne(id: string): Promise<Category | null> {
     return this.repo.findOne({
-      where: { id, deleted_at: null },
+      where: { id, deleted_at: IsNull() },
       relations: ['parent', 'children'],
     });
   }

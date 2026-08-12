@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, IsNull } from 'typeorm';
 import { Product } from '../entities/product.entity';
 import { ProductFilterDto } from '../dto/product/product-filter.dto';
 
@@ -48,13 +48,13 @@ export class ProductRepository {
 
   async findOne(id: string): Promise<Product | null> {
     return this.repo.findOne({
-      where: { id, deleted_at: null },
+      where: { id, deleted_at: IsNull() },
       relations: ['category', 'brand', 'unit', 'tax', 'barcodes', 'images', 'prices', 'stock_info'],
     });
   }
 
   async findBySku(sku: string): Promise<Product | null> {
-    return this.repo.findOne({ where: { sku, deleted_at: null } });
+    return this.repo.findOne({ where: { sku, deleted_at: IsNull() } });
   }
 
   async create(entity: Partial<Product>): Promise<Product> {

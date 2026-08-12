@@ -19,7 +19,11 @@ export class PricesService {
     if (!product) {
       throw new NotFoundException(`Товар с ID "${dto.product_id}" не найден`);
     }
-    const price = await this.priceRepo.create(dto);
+    const price = await this.priceRepo.create({
+      ...dto,
+      valid_from: dto.valid_from ? new Date(dto.valid_from) : null,
+      valid_until: dto.valid_until ? new Date(dto.valid_until) : null,
+    });
     return this.mapToResponse(price);
   }
 
@@ -50,7 +54,11 @@ export class PricesService {
         throw new NotFoundException(`Товар с ID "${dto.product_id}" не найден`);
       }
     }
-    const updated = await this.priceRepo.update(id, dto);
+    const updated = await this.priceRepo.update(id, {
+      ...dto,
+      valid_from: dto.valid_from ? new Date(dto.valid_from) : undefined,
+      valid_until: dto.valid_until ? new Date(dto.valid_until) : undefined,
+    });
     return this.mapToResponse(updated);
   }
 
