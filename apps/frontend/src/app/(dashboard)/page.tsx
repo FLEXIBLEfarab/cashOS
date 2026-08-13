@@ -309,7 +309,7 @@ export default function DashboardPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
-                {productsData?.data?.map((p: any) => (
+                {productsData?.data?.data?.map((p: any) => (
                   <tr key={p.id} className="hover:bg-gray-50/50 transition-all">
                     <td className="py-3">
                       <div className="font-semibold text-gray-900">{p.name}</div>
@@ -328,6 +328,13 @@ export default function DashboardPage() {
                     </td>
                   </tr>
                 )) || (
+                  <tr>
+                    <td colSpan={4} className="text-center py-8 text-gray-400">
+                      Товары не добавлены
+                    </td>
+                  </tr>
+                )}
+                {!productsData?.data?.data?.length && (
                   <tr>
                     <td colSpan={4} className="text-center py-8 text-gray-400">
                       Товары не добавлены

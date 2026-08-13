@@ -259,7 +259,7 @@ export default function ProductsPage() {
           <div className="flex justify-center items-center py-20">
             <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
           </div>
-        ) : productsData?.data?.length ? (
+        ) : productsData?.data?.data?.length ? (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm text-gray-600">
               <thead>
@@ -273,7 +273,7 @@ export default function ProductsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
-                {productsData.data.map((p: any) => (
+                {productsData.data.data.map((p: any) => (
                   <tr key={p.id} className="hover:bg-gray-50/40 transition-all">
                     <td className="py-4 px-6">
                       <div className="font-semibold text-gray-900">{p.name}</div>
@@ -332,10 +332,10 @@ export default function ProductsPage() {
         )}
 
         {/* Pagination */}
-        {productsData?.meta && productsData.meta.total > 10 && (
+        {productsData?.data?.meta && productsData.data.meta.total > 10 && (
           <div className="flex justify-between items-center px-6 py-4 border-t border-gray-100 bg-gray-50/10">
             <span className="text-xs text-gray-500">
-              Показано {((page - 1) * 10) + 1} - {Math.min(page * 10, productsData.meta.total)} из {productsData.meta.total}
+              Показано {((page - 1) * 10) + 1} - {Math.min(page * 10, productsData.data.meta.total)} из {productsData.data.meta.total}
             </span>
             <div className="flex gap-2">
               <button
@@ -346,7 +346,7 @@ export default function ProductsPage() {
                 Назад
               </button>
               <button
-                disabled={page * 10 >= productsData.meta.total}
+                disabled={page * 10 >= productsData.data.meta.total}
                 onClick={() => setPage(page + 1)}
                 className="px-3 py-1.5 rounded-lg border border-gray-200 text-xs font-semibold text-gray-600 hover:bg-gray-50 transition-all disabled:opacity-50"
               >
