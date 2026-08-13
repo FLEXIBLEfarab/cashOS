@@ -242,7 +242,7 @@ export default function ProductsPage() {
               className="w-full bg-gray-50/50 border border-gray-200/60 rounded-xl py-2.5 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-gray-900 appearance-none"
             >
               <option value="">Все категории</option>
-              {categories?.map((c: any) => (
+              {categories?.data?.map((c: any) => (
                 <option key={c.id} value={c.id}>
                   {c.name}
                 </option>
@@ -433,7 +433,7 @@ export default function ProductsPage() {
                     className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-gray-950"
                   >
                     <option value="">Без категории</option>
-                    {categories?.map((c: any) => (
+                    {categories?.data?.map((c: any) => (
                       <option key={c.id} value={c.id}>
                         {c.name}
                       </option>
@@ -457,7 +457,7 @@ export default function ProductsPage() {
                     className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-gray-950"
                   >
                     <option value="">Без бренда</option>
-                    {brands?.map((b: any) => (
+                    {brands?.data?.map((b: any) => (
                       <option key={b.id} value={b.id}>
                         {b.name}
                       </option>
