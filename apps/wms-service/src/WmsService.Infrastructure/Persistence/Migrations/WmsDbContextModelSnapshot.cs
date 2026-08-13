@@ -413,6 +413,12 @@ namespace WmsService.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
+                    b.Property<string>("PerformedByUserId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PerformedByUserName")
+                        .HasColumnType("text");
+
                     b.Property<decimal>("Quantity")
                         .HasPrecision(18, 3)
                         .HasColumnType("numeric(18,3)")

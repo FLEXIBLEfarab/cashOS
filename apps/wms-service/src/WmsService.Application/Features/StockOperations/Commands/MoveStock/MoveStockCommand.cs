@@ -26,15 +26,18 @@ public sealed class MoveStockCommandHandler : IRequestHandler<MoveStockCommand, 
     private readonly IStockRepository _stockRepository;
     private readonly IRepository<StockMovement> _movements;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ICurrentUserService _currentUser;
 
     public MoveStockCommandHandler(
         IStockRepository stockRepository,
         IRepository<StockMovement> movements,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        ICurrentUserService currentUser)
     {
         _stockRepository = stockRepository;
         _movements = movements;
         _unitOfWork = unitOfWork;
+        _currentUser = currentUser;
     }
 
     public async Task<MoveStockResponse> Handle(MoveStockCommand request, CancellationToken cancellationToken)
@@ -62,7 +65,9 @@ public sealed class MoveStockCommandHandler : IRequestHandler<MoveStockCommand, 
             Quantity = request.Quantity,
             Reason = request.DocumentNumber,
             SourceWarehouseId = request.SourceWarehouseId,
-            TargetWarehouseId = request.DestinationWarehouseId
+            TargetWarehouseId = request.DestinationWarehouseId,
+            PerformedByUserId = _currentUser.UserId,
+            PerformedByUserName = _currentUser.UserName
         };
         await _movements.AddAsync(outMovement, cancellationToken);
 
@@ -74,7 +79,9 @@ public sealed class MoveStockCommandHandler : IRequestHandler<MoveStockCommand, 
             Quantity = request.Quantity,
             Reason = request.DocumentNumber,
             SourceWarehouseId = request.SourceWarehouseId,
-            TargetWarehouseId = request.DestinationWarehouseId
+            TargetWarehouseId = request.DestinationWarehouseId,
+            PerformedByUserId = _currentUser.UserId,
+            PerformedByUserName = _currentUser.UserName
         };
         await _movements.AddAsync(inMovement, cancellationToken);
 

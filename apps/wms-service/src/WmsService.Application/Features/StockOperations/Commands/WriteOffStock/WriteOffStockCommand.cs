@@ -32,21 +32,27 @@ public sealed class WriteOffStockCommandHandler : IRequestHandler<WriteOffStockC
     private readonly IRepository<WriteOff> _writeOffs;
     private readonly IBatchRepository _batchRepository;
     private readonly IStockRepository _stockRepository;
+    private readonly IRepository<StockMovement> _movements;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IEventPublisher _eventPublisher;
+    private readonly ICurrentUserService _currentUser;
 
     public WriteOffStockCommandHandler(
         IRepository<WriteOff> writeOffs,
         IBatchRepository batchRepository,
         IStockRepository stockRepository,
+        IRepository<StockMovement> movements,
         IUnitOfWork unitOfWork,
-        IEventPublisher eventPublisher)
+        IEventPublisher eventPublisher,
+        ICurrentUserService currentUser)
     {
         _writeOffs = writeOffs;
         _batchRepository = batchRepository;
         _stockRepository = stockRepository;
+        _movements = movements;
         _unitOfWork = unitOfWork;
         _eventPublisher = eventPublisher;
+        _currentUser = currentUser;
     }
 
     public async Task<WriteOffStockResponse> Handle(WriteOffStockCommand request, CancellationToken cancellationToken)
@@ -82,6 +88,21 @@ public sealed class WriteOffStockCommandHandler : IRequestHandler<WriteOffStockC
             };
             writeOff.Items.Add(writeOffItem);
             publishedItems.Add(writeOffItem);
+
+            if (stock is not null)
+            {
+                await _movements.AddAsync(new StockMovement
+                {
+                    StockId = stock.Id,
+                    BatchId = item.BatchId,
+                    Type = MovementType.WriteOff,
+                    Quantity = item.Quantity,
+                    Reason = item.Reason ?? request.Reason,
+                    SourceWarehouseId = request.WarehouseId,
+                    PerformedByUserId = _currentUser.UserId,
+                    PerformedByUserName = _currentUser.UserName
+                }, cancellationToken);
+            }
         }
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);

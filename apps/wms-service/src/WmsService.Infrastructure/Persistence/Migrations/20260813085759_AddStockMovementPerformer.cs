@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace WmsService.Infrastructure.Persistence.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class AddStockMovementPerformer : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -316,6 +316,8 @@ namespace WmsService.Infrastructure.Persistence.Migrations
                     reason = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
                     SourceWarehouseId = table.Column<Guid>(type: "uuid", nullable: true),
                     TargetWarehouseId = table.Column<Guid>(type: "uuid", nullable: true),
+                    PerformedByUserId = table.Column<string>(type: "text", nullable: true),
+                    PerformedByUserName = table.Column<string>(type: "text", nullable: true),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },

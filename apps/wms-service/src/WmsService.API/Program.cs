@@ -1,7 +1,9 @@
 using Hangfire;
+using Microsoft.EntityFrameworkCore;
 using WmsService.API.Middleware;
 using WmsService.Application;
 using WmsService.Infrastructure;
+using WmsService.Infrastructure.Hangfire.Jobs;
 using WmsService.Infrastructure.SignalR.Hubs;
 using Serilog;
 

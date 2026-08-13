@@ -13,4 +13,6 @@ public sealed class StockMovement : BaseEntity
     public string? Reason { get; set; }
     public Guid? SourceWarehouseId { get; set; }
     public Guid? TargetWarehouseId { get; set; }
+    public string? PerformedByUserId { get; set; }
+    public string? PerformedByUserName { get; set; }
 }

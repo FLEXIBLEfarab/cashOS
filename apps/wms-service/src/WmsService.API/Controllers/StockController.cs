@@ -40,6 +40,17 @@ public class StockController : ControllerBase
         return Ok(result);
     }
 
+    [HttpGet("expiring")]
+    [ProducesResponseType(typeof(IReadOnlyList<ExpiringStockRow>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<IReadOnlyList<ExpiringStockRow>>> GetExpiring(
+        [FromQuery] Guid? warehouseId,
+        [FromQuery] int days = 7,
+        CancellationToken cancellationToken = default)
+    {
+        var result = await _mediator.Send(new GetExpiringStockQuery(warehouseId, days), cancellationToken);
+        return Ok(result);
+    }
+
     [HttpPost("receive")]
     [ProducesResponseType(typeof(ReceiveStockResponse), StatusCodes.Status200OK)]
     public async Task<ActionResult<ReceiveStockResponse>> Receive(

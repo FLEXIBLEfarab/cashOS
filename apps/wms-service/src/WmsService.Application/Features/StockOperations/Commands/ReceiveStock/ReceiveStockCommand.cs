@@ -35,21 +35,27 @@ public sealed class ReceiveStockCommandHandler : IRequestHandler<ReceiveStockCom
     private readonly IRepository<ReceivingDocument> _receivingDocuments;
     private readonly IBatchRepository _batchRepository;
     private readonly IStockRepository _stockRepository;
+    private readonly IRepository<StockMovement> _movements;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IEventPublisher _eventPublisher;
+    private readonly ICurrentUserService _currentUser;
 
     public ReceiveStockCommandHandler(
         IRepository<ReceivingDocument> receivingDocuments,
         IBatchRepository batchRepository,
         IStockRepository stockRepository,
+        IRepository<StockMovement> movements,
         IUnitOfWork unitOfWork,
-        IEventPublisher eventPublisher)
+        IEventPublisher eventPublisher,
+        ICurrentUserService currentUser)
     {
         _receivingDocuments = receivingDocuments;
         _batchRepository = batchRepository;
         _stockRepository = stockRepository;
+        _movements = movements;
         _unitOfWork = unitOfWork;
         _eventPublisher = eventPublisher;
+        _currentUser = currentUser;
     }
 
     public async Task<ReceiveStockResponse> Handle(ReceiveStockCommand request, CancellationToken cancellationToken)
@@ -95,16 +101,30 @@ public sealed class ReceiveStockCommandHandler : IRequestHandler<ReceiveStockCom
                 ExpirationDate = item.ExpirationDate
             });
 
-            var stock = await _stockRepository.GetByProductAndWarehouseAsync(item.ProductId, request.WarehouseId, cancellationToken);
-            if (stock is null)
+            Stock stock;
+            var existingStock = await _stockRepository.GetByProductAndWarehouseAsync(item.ProductId, request.WarehouseId, cancellationToken);
+            if (existingStock is null)
             {
                 stock = new Stock(item.ProductId, request.WarehouseId, item.Quantity);
                 await _stockRepository.AddAsync(stock, cancellationToken);
             }
             else
             {
-                stock.Increase(item.Quantity);
+                existingStock.Increase(item.Quantity);
+                stock = existingStock;
             }
+
+            await _movements.AddAsync(new StockMovement
+            {
+                StockId = stock.Id,
+                BatchId = batch.Id,
+                Type = MovementType.Receive,
+                Quantity = item.Quantity,
+                Reason = $"Приёмка по документу {request.DocumentNumber}",
+                TargetWarehouseId = request.WarehouseId,
+                PerformedByUserId = _currentUser.UserId,
+                PerformedByUserName = _currentUser.UserName
+            }, cancellationToken);
         }
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);

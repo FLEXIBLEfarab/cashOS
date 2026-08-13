@@ -12,8 +12,8 @@ using WmsService.Infrastructure.Persistence;
 namespace WmsService.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(WmsDbContext))]
-    [Migration("20260808150442_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20260813085759_AddStockMovementPerformer")]
+    partial class AddStockMovementPerformer
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -415,6 +415,12 @@ namespace WmsService.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
+
+                    b.Property<string>("PerformedByUserId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PerformedByUserName")
+                        .HasColumnType("text");
 
                     b.Property<decimal>("Quantity")
                         .HasPrecision(18, 3)

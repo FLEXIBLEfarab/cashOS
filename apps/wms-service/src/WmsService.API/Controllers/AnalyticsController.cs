@@ -74,12 +74,11 @@ public class AnalyticsController : ControllerBase
 
         if (format.Equals("pdf", StringComparison.OrdinalIgnoreCase))
         {
-            var html = $"<html><body><h1>Sales Report</h1><p>Period: {from:d} - {to:d}</p></body></html>";
-            var pdf = await _reportService.GeneratePdfAsync(html, cancellationToken);
+            var pdf = await _reportService.GenerateTablePdfAsync(data, $"Sales Report {from:d} - {to:d}", cancellationToken);
             return File(pdf, "application/pdf", $"sales_{from:yyyyMMdd}_{to:yyyyMMdd}.pdf");
         }
 
         var excel = await _reportService.GenerateExcelAsync(data, "Sales", cancellationToken);
-        return File(excel, "text/csv", $"sales_{from:yyyyMMdd}_{to:yyyyMMdd}.csv");
+        return File(excel, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"sales_{from:yyyyMMdd}_{to:yyyyMMdd}.xlsx");
     }
 }

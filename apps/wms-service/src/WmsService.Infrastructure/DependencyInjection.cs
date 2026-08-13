@@ -32,6 +32,7 @@ public static class DependencyInjection
         services.AddScoped<IWmsNotificationService, WmsNotificationService>();
         services.AddScoped<IReportService, ReportService>();
         services.AddHttpContextAccessor();
+        services.AddScoped<ICurrentUserService, CurrentUserService>();
 
         services.AddHangfire(config => config
             .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)

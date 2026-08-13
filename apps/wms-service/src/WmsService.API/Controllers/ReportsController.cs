@@ -7,17 +7,14 @@ using WmsService.Application.Features.StockOperations.Queries;
 namespace WmsService.API.Controllers;
 
 /// <summary>
-/// Экспорт отчётов по складу. На текущем этапе экспорт отдаёт CSV
-/// (через уже существующий IReportService.GenerateExcelAsync, который
-/// внутри использует CsvHelper) — файл открывается в Excel, но это не
-/// "настоящий" .xlsx. Апгрейд на реальный .xlsx через ClosedXML и
-/// реальный PDF через QuestPDF — следующий шаг, сервис сейчас
-/// содержит заглушку для PDF.
+/// Экспорт отчётов по складу в Excel (.xlsx, ClosedXML) или PDF (QuestPDF).
 /// </summary>
 [ApiController]
 [Route("api/v1/reports")]
 public class ReportsController : ControllerBase
 {
+    private const string ExcelContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+
     private readonly IMediator _mediator;
     private readonly IReportService _reportService;
 
@@ -33,11 +30,11 @@ public class ReportsController : ControllerBase
     public async Task<IActionResult> GetStockReport(
         [FromQuery] Guid? warehouseId,
         [FromQuery] Guid? productId,
-        CancellationToken cancellationToken)
+        [FromQuery] string format = "excel",
+        CancellationToken cancellationToken = default)
     {
         var data = await _mediator.Send(new GetStockQuery(warehouseId, productId), cancellationToken);
-        var bytes = await _reportService.GenerateExcelAsync(data, "Stock", cancellationToken);
-        return File(bytes, "text/csv", "stock-report.csv");
+        return await ExportAsync(data, "Stock", "stock-report", format, cancellationToken);
     }
 
     /// <summary>Отчёт по движениям товара.</summary>
@@ -46,11 +43,11 @@ public class ReportsController : ControllerBase
     public async Task<IActionResult> GetMovementsReport(
         [FromQuery] Guid? warehouseId,
         [FromQuery] Guid? stockId,
-        CancellationToken cancellationToken)
+        [FromQuery] string format = "excel",
+        CancellationToken cancellationToken = default)
     {
         var data = await _mediator.Send(new GetStockMovementsQuery(stockId, warehouseId), cancellationToken);
-        var bytes = await _reportService.GenerateExcelAsync(data, "Movements", cancellationToken);
-        return File(bytes, "text/csv", "movements-report.csv");
+        return await ExportAsync(data, "Movements", "movements-report", format, cancellationToken);
     }
 
     /// <summary>Отчёт по просроченным партиям.</summary>
@@ -58,10 +55,23 @@ public class ReportsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetExpiredReport(
         [FromQuery] Guid? warehouseId,
-        CancellationToken cancellationToken)
+        [FromQuery] string format = "excel",
+        CancellationToken cancellationToken = default)
     {
         var data = await _mediator.Send(new GetExpiredBatchesReportQuery(warehouseId), cancellationToken);
-        var bytes = await _reportService.GenerateExcelAsync(data, "Expired", cancellationToken);
-        return File(bytes, "text/csv", "expired-report.csv");
+        return await ExportAsync(data, "Expired", "expired-report", format, cancellationToken);
+    }
+
+    private async Task<IActionResult> ExportAsync<T>(
+        IReadOnlyList<T> data, string sheetTitle, string fileBaseName, string format, CancellationToken cancellationToken)
+    {
+        if (string.Equals(format, "pdf", StringComparison.OrdinalIgnoreCase))
+        {
+            var pdfBytes = await _reportService.GenerateTablePdfAsync(data, sheetTitle, cancellationToken);
+            return File(pdfBytes, "application/pdf", $"{fileBaseName}.pdf");
+        }
+
+        var excelBytes = await _reportService.GenerateExcelAsync(data, sheetTitle, cancellationToken);
+        return File(excelBytes, ExcelContentType, $"{fileBaseName}.xlsx");
     }
 }
