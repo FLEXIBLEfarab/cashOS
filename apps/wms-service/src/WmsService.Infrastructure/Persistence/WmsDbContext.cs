@@ -20,6 +20,8 @@ public sealed class WmsDbContext : DbContext
     public DbSet<InventoryItem> InventoryItems => Set<InventoryItem>();
     public DbSet<Supplier> Suppliers => Set<Supplier>();
     public DbSet<ExpirationCheckLog> ExpirationCheckLogs => Set<ExpirationCheckLog>();
+    public DbSet<SeasonalPriceList> SeasonalPriceLists => Set<SeasonalPriceList>();
+    public DbSet<PreOrder> PreOrders => Set<PreOrder>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
