@@ -9,21 +9,14 @@ public sealed class StockConfiguration : IEntityTypeConfiguration<Stock>
     public void Configure(EntityTypeBuilder<Stock> builder)
     {
         builder.ToTable("stocks");
-
-        builder.HasKey(s => s.Id);
-        builder.Property(s => s.Id).ValueGeneratedNever();
-
-        builder.Property(s => s.ProductId).HasColumnName("product_id").IsRequired();
-        builder.Property(s => s.WarehouseId).HasColumnName("warehouse_id").IsRequired();
-        builder.Property(s => s.Quantity).HasColumnName("quantity").HasPrecision(18, 3).IsRequired();
-        builder.Property(s => s.ReservedQuantity).HasColumnName("reserved_quantity").HasPrecision(18, 3).IsRequired();
-        builder.Property(s => s.CreatedAt).HasColumnName("created_at").IsRequired();
-        builder.Property(s => s.UpdatedAt).HasColumnName("updated_at").IsRequired();
-
-        builder.HasOne(s => s.Product).WithMany(p => p.Stocks).HasForeignKey(s => s.ProductId);
-        builder.HasOne(s => s.Warehouse).WithMany(w => w.Stocks).HasForeignKey(s => s.WarehouseId);
-
-        builder.HasIndex(s => new { s.ProductId, s.WarehouseId }).IsUnique();
-        builder.HasIndex(s => s.WarehouseId);
+        builder.HasKey(e => e.Id);
+        builder.Property(e => e.Id).ValueGeneratedNever();
+        builder.Property(e => e.Quantity).HasColumnName("quantity").HasPrecision(18, 3).IsRequired();
+        builder.Property(e => e.ReservedQuantity).HasColumnName("reserved_quantity").HasPrecision(18, 3).IsRequired();
+        builder.HasOne(e => e.Product).WithMany().HasForeignKey(e => e.ProductId);
+        builder.HasOne(e => e.Warehouse).WithMany().HasForeignKey(e => e.WarehouseId);
+        builder.HasIndex(e => new { e.ProductId, e.WarehouseId }).IsUnique();
+        builder.Property(e => e.CreatedAt).HasColumnName("created_at").IsRequired();
+        builder.Property(e => e.UpdatedAt).HasColumnName("updated_at").IsRequired();
     }
 }

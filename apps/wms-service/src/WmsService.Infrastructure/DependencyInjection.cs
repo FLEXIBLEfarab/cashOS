@@ -17,24 +17,23 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
-        // DbContext
         services.AddDbContext<WmsDbContext>(options =>
             options.UseNpgsql(
                 configuration.GetConnectionString("DefaultConnection"),
                 b => b.MigrationsAssembly(typeof(WmsDbContext).Assembly.FullName)));
 
-        // Repositories
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-        services.AddScoped<IStockRepository, StockRepository>();
         services.AddScoped<IBatchRepository, BatchRepository>();
+        services.AddScoped<IStockRepository, StockRepository>();
         services.AddScoped<IMovementRepository, MovementRepository>();
+        services.AddScoped<IExpirationCheckLogRepository, ExpirationCheckLogRepository>();
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-        // Services
-        services.AddScoped<IDateTimeService, DateTimeService>();
-        services.AddScoped<ICurrentUserService, CurrentUserService>();
+        services.AddScoped<IWmsNotificationService, WmsNotificationService>();
+        services.AddScoped<IReportService, ReportService>();
         services.AddHttpContextAccessor();
+        services.AddScoped<ICurrentUserService, CurrentUserService>();
 
-        // Hangfire
         services.AddHangfire(config => config
             .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
             .UseSimpleAssemblyNameTypeSerializer()
@@ -45,12 +44,11 @@ public static class DependencyInjection
         services.AddHangfireServer();
         services.AddScoped<IExpirationCheckJob, ExpirationCheckJob>();
 
-        // SignalR
         services.AddSignalR();
 
-        // RabbitMQ
-        services.Configure<RabbitMQSettings>(configuration.GetSection("RabbitMQ"));
+        services.Configure<RabbitMQOptions>(configuration.GetSection("RabbitMQ"));
         services.AddSingleton<IRabbitMQPublisher, RabbitMQPublisher>();
+        services.AddSingleton<IEventPublisher, EventPublisher>();
 
         return services;
     }
