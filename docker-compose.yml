@@ -17,7 +17,7 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./scripts/init-multiple-databases.sh:/docker-entrypoint-initdb.d/init-multiple-databases.sh
+      - ./infra/postgres-init:/docker-entrypoint-initdb.d
     networks:
       - chetka_network
     healthcheck:
@@ -124,10 +124,11 @@ services:
       ASPNETCORE_ENVIRONMENT: Development
       ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=chetka_wms;Username=${POSTGRES_USER:-chetka};Password=${POSTGRES_PASSWORD:-chetka_secret}"
       RabbitMQ__HostName: rabbitmq
+      RabbitMQ__Port: 5672
       RabbitMQ__UserName: ${RABBITMQ_USER:-chetka}
       RabbitMQ__Password: ${RABBITMQ_PASSWORD:-rabbitmq_secret}
       RabbitMQ__VirtualHost: chetka_vhost
-      RabbitMQ__Port: 5672
+      RabbitMQ__ExchangeName: chetka.events
     ports:
       - "5000:8080"
     networks:

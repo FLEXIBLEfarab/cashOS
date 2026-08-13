@@ -9,23 +9,14 @@ public sealed class WriteOffItemConfiguration : IEntityTypeConfiguration<WriteOf
     public void Configure(EntityTypeBuilder<WriteOffItem> builder)
     {
         builder.ToTable("write_off_items");
-
-        builder.HasKey(i => i.Id);
-        builder.Property(i => i.Id).ValueGeneratedNever();
-
-        builder.Property(i => i.WriteOffId).HasColumnName("write_off_id").IsRequired();
-        builder.Property(i => i.ProductId).HasColumnName("product_id").IsRequired();
-        builder.Property(i => i.BatchId).HasColumnName("batch_id").IsRequired();
-        builder.Property(i => i.Quantity).HasColumnName("quantity").HasPrecision(18, 3).IsRequired();
-        builder.Property(i => i.Reason).HasColumnName("reason").HasMaxLength(500);
-        builder.Property(i => i.CreatedAt).HasColumnName("created_at").IsRequired();
-        builder.Property(i => i.UpdatedAt).HasColumnName("updated_at").IsRequired();
-
-        builder.HasOne(i => i.WriteOff).WithMany(w => w.Items).HasForeignKey(i => i.WriteOffId);
-        builder.HasOne(i => i.Product).WithMany().HasForeignKey(i => i.ProductId);
-        builder.HasOne(i => i.Batch).WithMany().HasForeignKey(i => i.BatchId);
-
-        builder.HasIndex(i => i.WriteOffId);
-        builder.HasIndex(i => i.BatchId);
+        builder.HasKey(e => e.Id);
+        builder.Property(e => e.Id).ValueGeneratedNever();
+        builder.Property(e => e.Quantity).HasColumnName("quantity").HasPrecision(18, 3).IsRequired();
+        builder.Property(e => e.Reason).HasColumnName("reason").HasMaxLength(500);
+        builder.HasOne(e => e.WriteOff).WithMany(w => w.Items).HasForeignKey(e => e.WriteOffId);
+        builder.HasOne(e => e.Product).WithMany().HasForeignKey(e => e.ProductId);
+        builder.HasOne(e => e.Batch).WithMany().HasForeignKey(e => e.BatchId);
+        builder.Property(e => e.CreatedAt).HasColumnName("created_at").IsRequired();
+        builder.Property(e => e.UpdatedAt).HasColumnName("updated_at").IsRequired();
     }
 }

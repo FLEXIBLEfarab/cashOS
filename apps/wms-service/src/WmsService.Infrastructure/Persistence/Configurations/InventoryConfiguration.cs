@@ -9,23 +9,14 @@ public sealed class InventoryConfiguration : IEntityTypeConfiguration<Inventory>
     public void Configure(EntityTypeBuilder<Inventory> builder)
     {
         builder.ToTable("inventories");
-
-        builder.HasKey(i => i.Id);
-        builder.Property(i => i.Id).ValueGeneratedNever();
-
-        builder.Property(i => i.DocumentNumber).HasColumnName("document_number").HasMaxLength(100).IsRequired();
-        builder.Property(i => i.WarehouseId).HasColumnName("warehouse_id").IsRequired();
-        builder.Property(i => i.Status).HasColumnName("status").IsRequired();
-        builder.Property(i => i.StartedAt).HasColumnName("started_at");
-        builder.Property(i => i.CompletedAt).HasColumnName("completed_at");
-        builder.Property(i => i.CreatedBy).HasColumnName("created_by").HasMaxLength(100).IsRequired();
-        builder.Property(i => i.CreatedAt).HasColumnName("created_at").IsRequired();
-        builder.Property(i => i.UpdatedAt).HasColumnName("updated_at").IsRequired();
-
-        builder.HasOne(i => i.Warehouse).WithMany().HasForeignKey(i => i.WarehouseId);
-
-        builder.HasIndex(i => i.DocumentNumber).IsUnique();
-        builder.HasIndex(i => i.Status);
-        builder.HasIndex(i => i.WarehouseId);
+        builder.HasKey(e => e.Id);
+        builder.Property(e => e.Id).ValueGeneratedNever();
+        builder.Property(e => e.DocumentNumber).HasColumnName("document_number").HasMaxLength(100).IsRequired();
+        builder.Property(e => e.Status).HasColumnName("status").HasConversion<string>().HasMaxLength(50).IsRequired();
+        builder.Property(e => e.StartedAt).HasColumnName("started_at");
+        builder.Property(e => e.CompletedAt).HasColumnName("completed_at");
+        builder.HasOne(e => e.Warehouse).WithMany().HasForeignKey(e => e.WarehouseId);
+        builder.Property(e => e.CreatedAt).HasColumnName("created_at").IsRequired();
+        builder.Property(e => e.UpdatedAt).HasColumnName("updated_at").IsRequired();
     }
 }

@@ -16,12 +16,12 @@ public sealed class Batch : BaseEntity
     public Guid? SupplierId { get; private set; }
     public Supplier? Supplier { get; private set; }
     public DateTime ReceivedAt { get; private set; }
-
     public ICollection<StockMovement> StockMovements { get; private set; } = new List<StockMovement>();
 
-    private Batch() { } // EF Core
+    private Batch() { }
 
-    public Batch(Guid productId, Guid warehouseId, string batchNumber, decimal initialQuantity, DateTime? expirationDate, DateTime? productionDate, Guid? supplierId)
+    public Batch(Guid productId, Guid warehouseId, string batchNumber, decimal initialQuantity,
+                 DateTime? expirationDate, DateTime? productionDate, Guid? supplierId)
     {
         ProductId = productId;
         WarehouseId = warehouseId;
@@ -55,7 +55,6 @@ public sealed class Batch : BaseEntity
             throw new ArgumentException("Amount must be positive", nameof(amount));
         if (amount > CurrentQuantity)
             throw new InvalidOperationException("Cannot reduce more than current quantity");
-
         CurrentQuantity -= amount;
         UpdatedAt = DateTime.UtcNow;
     }
@@ -64,7 +63,6 @@ public sealed class Batch : BaseEntity
     {
         if (amount <= 0)
             throw new ArgumentException("Amount must be positive", nameof(amount));
-
         CurrentQuantity += amount;
         UpdatedAt = DateTime.UtcNow;
     }

@@ -14,9 +14,10 @@ public sealed class ExpirationCheckLog : BaseEntity
     public bool IsExpiringSoon { get; private set; }
     public string? ActionTaken { get; private set; }
 
-    private ExpirationCheckLog() { } // EF Core
+    private ExpirationCheckLog() { }
 
-    public ExpirationCheckLog(Guid batchId, Guid productId, Guid warehouseId, DateTime checkDate, int? daysUntilExpiration, bool isExpired, bool isExpiringSoon, string? actionTaken = null)
+    public ExpirationCheckLog(Guid batchId, Guid productId, Guid warehouseId, DateTime checkDate,
+                                int? daysUntilExpiration, bool isExpired, bool isExpiringSoon, string? actionTaken = null)
     {
         BatchId = batchId;
         ProductId = productId;

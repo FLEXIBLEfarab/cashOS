@@ -1,15 +1,8 @@
 using Microsoft.EntityFrameworkCore;
+using WmsService.Application.Common.Interfaces;
 using WmsService.Domain.Entities;
 
 namespace WmsService.Infrastructure.Persistence.Repositories;
-
-public interface IBatchRepository
-{
-    Task<IReadOnlyList<Batch>> GetExpiredAsync(Guid warehouseId, CancellationToken cancellationToken = default);
-    Task<IReadOnlyList<Batch>> GetExpiringSoonAsync(Guid warehouseId, int days, CancellationToken cancellationToken = default);
-    Task<IReadOnlyList<Batch>> GetByProductAsync(Guid productId, Guid warehouseId, CancellationToken cancellationToken = default);
-    Task<IReadOnlyList<Batch>> GetBlockedAsync(Guid warehouseId, CancellationToken cancellationToken = default);
-}
 
 public sealed class BatchRepository : Repository<Batch>, IBatchRepository
 {
@@ -51,6 +44,25 @@ public sealed class BatchRepository : Repository<Batch>, IBatchRepository
             .Include(b => b.Product)
             .Where(b => b.WarehouseId == warehouseId && b.IsBlocked && b.CurrentQuantity > 0)
             .AsNoTracking()
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<Batch>> GetAllExpiredAsync(CancellationToken cancellationToken = default)
+    {
+        var now = DateTime.UtcNow.Date;
+        return await _dbSet
+            .Include(b => b.Product)
+            .Where(b => b.ExpirationDate < now && b.CurrentQuantity > 0)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<Batch>> GetAllExpiringSoonAsync(int days, CancellationToken cancellationToken = default)
+    {
+        var now = DateTime.UtcNow.Date;
+        var threshold = now.AddDays(days);
+        return await _dbSet
+            .Include(b => b.Product)
+            .Where(b => b.ExpirationDate >= now && b.ExpirationDate <= threshold && b.CurrentQuantity > 0 && !b.IsBlocked)
             .ToListAsync(cancellationToken);
     }
 }

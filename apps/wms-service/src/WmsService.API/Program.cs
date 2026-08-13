@@ -1,10 +1,12 @@
+using Hangfire;
+using Microsoft.EntityFrameworkCore;
 using WmsService.API.Middleware;
 using WmsService.Application;
 using WmsService.Infrastructure;
+using WmsService.Infrastructure.Hangfire.Jobs;
 using WmsService.Infrastructure.SignalR.Hubs;
 using Serilog;
 
-// ─── Logger (bootstrap) ───────────────────────────────────────────────────────
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
     .CreateBootstrapLogger();
@@ -15,12 +17,10 @@ try
 
     var builder = WebApplication.CreateBuilder(args);
 
-    // ─── Serilog ─────────────────────────────────────────────────────────────
     builder.Host.UseSerilog((ctx, lc) => lc
         .ReadFrom.Configuration(ctx.Configuration)
         .WriteTo.Console());
 
-    // ─── Services ─────────────────────────────────────────────────────────────
     builder.Services.AddControllers();
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen(options =>
@@ -30,7 +30,7 @@ try
             Title = "Четка WMS Service API",
             Version = "v1",
             Description = "WMS (Warehouse Management System) микросервис для SaaS-системы «Четка».\n" +
-                "Архитектура: Clean Architecture / CQRS (MediatR).",
+                "Архитектура: Clean Architecture / CQRS (MediatR) / Hangfire / SignalR / RabbitMQ.",
             Contact = new()
             {
                 Name = "Команда Четка",
@@ -45,7 +45,7 @@ try
             Scheme = "bearer",
             BearerFormat = "JWT",
             In = Microsoft.OpenApi.Models.ParameterLocation.Header,
-            Description = "Введите JWT токен (получить через /v1/auth/login в Backend API)",
+            Description = "Введите JWT токен",
         });
 
         options.AddSecurityRequirement(new()
@@ -57,25 +57,28 @@ try
         });
     });
 
-    // ─── Application & Infrastructure ────────────────────────────────────────
     builder.Services.AddApplication();
     builder.Services.AddInfrastructure(builder.Configuration);
 
-    // ─── CORS ─────────────────────────────────────────────────────────────────
     builder.Services.AddCors(options =>
     {
         options.AddDefaultPolicy(policy =>
             policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
     });
 
-    // ─── Health Checks ────────────────────────────────────────────────────────
     builder.Services.AddHealthChecks();
 
     var app = builder.Build();
 
-    // ─── Middleware ───────────────────────────────────────────────────────────
+    using (var scope = app.Services.CreateScope())
+    {
+        var dbContext = scope.ServiceProvider.GetRequiredService<WmsService.Infrastructure.Persistence.WmsDbContext>();
+        await dbContext.Database.MigrateAsync();
+        Log.Information("✅ Миграции базы данных применены");
+    }
+
+    app.UseExceptionHandling();
     app.UseSerilogRequestLogging();
-    app.UseMiddleware<GlobalExceptionMiddleware>();
 
     if (app.Environment.IsDevelopment())
     {
@@ -95,8 +98,23 @@ try
     app.MapHealthChecks("/health");
     app.MapHub<WmsHub>("/hubs/wms");
 
+    app.UseHangfireDashboard("/hangfire", new DashboardOptions
+    {
+        Authorization = new[] { new HangfireDashboardAuthFilter() }
+    });
+
+    RecurringJob.AddOrUpdate<IExpirationCheckJob>(
+        recurringJobId: "daily-expiration-check",
+        methodCall: job => job.CheckExpirationsAsync(default),
+        cronExpression: Cron.Daily(hour: 2, minute: 0),
+        options: new RecurringJobOptions
+        {
+            TimeZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Almaty")
+        });
+
     Log.Information("📚 WMS Swagger UI: http://localhost:5000/api/docs");
     Log.Information("📡 WMS SignalR Hub: /hubs/wms");
+    Log.Information("🔥 Hangfire Dashboard: /hangfire");
 
     await app.RunAsync();
 }
