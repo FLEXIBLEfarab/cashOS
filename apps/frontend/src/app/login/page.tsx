@@ -10,7 +10,7 @@ export default function LoginPage() {
   const router = useRouter();
   const { isAuthenticated, login } = useAuthStore();
   const [email, setEmail] = useState('admin@chetka.kz');
-  const [password, setPassword] = useState('admin_secret');
+  const [password, setPassword] = useState('Password123!');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -40,7 +40,7 @@ export default function LoginPage() {
     } catch (err: any) {
       setError(
         err.response?.data?.message || 
-        'Неверный email или пароль. Попробуйте admin@chetka.kz / admin_secret'
+        'Неверный email или пароль. Попробуйте admin@chetka.kz / Password123!'
       );
     } finally {
       setLoading(false);
