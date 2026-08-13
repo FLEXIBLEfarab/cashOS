@@ -31,15 +31,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const { isAuthenticated, user, logout } = useAuthStore();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setMounted(true);
-    if (!isAuthenticated) {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
+    if (!token && !isAuthenticated) {
       router.replace('/login');
+    } else {
+      setLoading(false);
     }
   }, [isAuthenticated, router]);
 
-  if (!mounted || !isAuthenticated) {
+  if (!mounted || loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-50">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
