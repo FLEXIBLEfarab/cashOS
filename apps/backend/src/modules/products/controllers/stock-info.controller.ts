@@ -1,4 +1,4 @@
-import {
+﻿import {
   Controller,
   Get,
   Post,
@@ -25,12 +25,12 @@ import { StockInfoFilterDto } from '../dto/stock-info/stock-info-filter.dto';
 import { StockInfoResponseDto } from '../dto/stock-info/stock-info-response.dto';
 
 @ApiTags('Stock Info')
-@Controller('v1/stock-info')
+@Controller('stock-info')
 export class StockInfoController {
   constructor(private readonly stockInfoService: StockInfoService) {}
 
   @Get()
-  @ApiOperation({ summary: 'Получить список складских остатков' })
+  @ApiOperation({ summary: 'ÐŸÐ¾Ð»ÑƒÑ‡Ð¸Ñ‚ÑŒ ÑÐ¿Ð¸ÑÐ¾Ðº ÑÐºÐ»Ð°Ð´ÑÐºÐ¸Ñ… Ð¾ÑÑ‚Ð°Ñ‚ÐºÐ¾Ð²' })
   @ApiQuery({ name: 'product_id', required: false })
   @ApiQuery({ name: 'branch_id', required: false })
   @ApiQuery({ name: 'warehouse_id', required: false })
@@ -46,7 +46,7 @@ export class StockInfoController {
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Получить остаток по ID' })
+  @ApiOperation({ summary: 'ÐŸÐ¾Ð»ÑƒÑ‡Ð¸Ñ‚ÑŒ Ð¾ÑÑ‚Ð°Ñ‚Ð¾Ðº Ð¿Ð¾ ID' })
   @ApiParam({ name: 'id' })
   @ApiResponse({ status: 200, type: StockInfoResponseDto })
   @ApiResponse({ status: 404 })
@@ -56,7 +56,7 @@ export class StockInfoController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Создать складской остаток' })
+  @ApiOperation({ summary: 'Ð¡Ð¾Ð·Ð´Ð°Ñ‚ÑŒ ÑÐºÐ»Ð°Ð´ÑÐºÐ¾Ð¹ Ð¾ÑÑ‚Ð°Ñ‚Ð¾Ðº' })
   @ApiBody({ type: CreateStockInfoDto })
   @ApiResponse({ status: 201, type: StockInfoResponseDto })
   @ApiResponse({ status: 404 })
@@ -65,7 +65,7 @@ export class StockInfoController {
   }
 
   @Put(':id')
-  @ApiOperation({ summary: 'Обновить складской остаток' })
+  @ApiOperation({ summary: 'ÐžÐ±Ð½Ð¾Ð²Ð¸Ñ‚ÑŒ ÑÐºÐ»Ð°Ð´ÑÐºÐ¾Ð¹ Ð¾ÑÑ‚Ð°Ñ‚Ð¾Ðº' })
   @ApiParam({ name: 'id' })
   @ApiBody({ type: UpdateStockInfoDto })
   @ApiResponse({ status: 200, type: StockInfoResponseDto })
@@ -76,7 +76,7 @@ export class StockInfoController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Удалить складской остаток' })
+  @ApiOperation({ summary: 'Ð£Ð´Ð°Ð»Ð¸Ñ‚ÑŒ ÑÐºÐ»Ð°Ð´ÑÐºÐ¾Ð¹ Ð¾ÑÑ‚Ð°Ñ‚Ð¾Ðº' })
   @ApiParam({ name: 'id' })
   @ApiResponse({ status: 204 })
   @ApiResponse({ status: 404 })
@@ -84,3 +84,4 @@ export class StockInfoController {
     return this.stockInfoService.remove(id);
   }
 }
+

@@ -1,4 +1,4 @@
-import {
+﻿import {
   Controller,
   Get,
   Post,
@@ -25,12 +25,12 @@ import { UnitFilterDto } from '../dto/unit/unit-filter.dto';
 import { UnitResponseDto } from '../dto/unit/unit-response.dto';
 
 @ApiTags('Units')
-@Controller('v1/units')
+@Controller('units')
 export class UnitsController {
   constructor(private readonly unitsService: UnitsService) {}
 
   @Get()
-  @ApiOperation({ summary: 'Получить список единиц измерения' })
+  @ApiOperation({ summary: 'ÐŸÐ¾Ð»ÑƒÑ‡Ð¸Ñ‚ÑŒ ÑÐ¿Ð¸ÑÐ¾Ðº ÐµÐ´Ð¸Ð½Ð¸Ñ† Ð¸Ð·Ð¼ÐµÑ€ÐµÐ½Ð¸Ñ' })
   @ApiQuery({ name: 'search', required: false })
   @ApiQuery({ name: 'is_active', required: false })
   @ApiQuery({ name: 'page', required: false })
@@ -44,7 +44,7 @@ export class UnitsController {
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Получить единицу измерения по ID' })
+  @ApiOperation({ summary: 'ÐŸÐ¾Ð»ÑƒÑ‡Ð¸Ñ‚ÑŒ ÐµÐ´Ð¸Ð½Ð¸Ñ†Ñƒ Ð¸Ð·Ð¼ÐµÑ€ÐµÐ½Ð¸Ñ Ð¿Ð¾ ID' })
   @ApiParam({ name: 'id' })
   @ApiResponse({ status: 200, type: UnitResponseDto })
   @ApiResponse({ status: 404 })
@@ -54,7 +54,7 @@ export class UnitsController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Создать единицу измерения' })
+  @ApiOperation({ summary: 'Ð¡Ð¾Ð·Ð´Ð°Ñ‚ÑŒ ÐµÐ´Ð¸Ð½Ð¸Ñ†Ñƒ Ð¸Ð·Ð¼ÐµÑ€ÐµÐ½Ð¸Ñ' })
   @ApiBody({ type: CreateUnitDto })
   @ApiResponse({ status: 201, type: UnitResponseDto })
   @ApiResponse({ status: 409 })
@@ -63,7 +63,7 @@ export class UnitsController {
   }
 
   @Put(':id')
-  @ApiOperation({ summary: 'Обновить единицу измерения' })
+  @ApiOperation({ summary: 'ÐžÐ±Ð½Ð¾Ð²Ð¸Ñ‚ÑŒ ÐµÐ´Ð¸Ð½Ð¸Ñ†Ñƒ Ð¸Ð·Ð¼ÐµÑ€ÐµÐ½Ð¸Ñ' })
   @ApiParam({ name: 'id' })
   @ApiBody({ type: UpdateUnitDto })
   @ApiResponse({ status: 200, type: UnitResponseDto })
@@ -75,7 +75,7 @@ export class UnitsController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Удалить единицу измерения' })
+  @ApiOperation({ summary: 'Ð£Ð´Ð°Ð»Ð¸Ñ‚ÑŒ ÐµÐ´Ð¸Ð½Ð¸Ñ†Ñƒ Ð¸Ð·Ð¼ÐµÑ€ÐµÐ½Ð¸Ñ' })
   @ApiParam({ name: 'id' })
   @ApiResponse({ status: 204 })
   @ApiResponse({ status: 404 })
@@ -83,3 +83,4 @@ export class UnitsController {
     return this.unitsService.remove(id);
   }
 }
+

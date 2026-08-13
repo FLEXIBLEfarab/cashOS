@@ -1,4 +1,4 @@
-import {
+﻿import {
   Controller,
   Get,
   Post,
@@ -25,12 +25,12 @@ import { BarcodeFilterDto } from '../dto/barcode/barcode-filter.dto';
 import { BarcodeResponseDto } from '../dto/barcode/barcode-response.dto';
 
 @ApiTags('Barcodes')
-@Controller('v1/barcodes')
+@Controller('barcodes')
 export class BarcodesController {
   constructor(private readonly barcodesService: BarcodesService) {}
 
   @Get()
-  @ApiOperation({ summary: 'Получить список штрихкодов' })
+  @ApiOperation({ summary: 'ÐŸÐ¾Ð»ÑƒÑ‡Ð¸Ñ‚ÑŒ ÑÐ¿Ð¸ÑÐ¾Ðº ÑˆÑ‚Ñ€Ð¸Ñ…ÐºÐ¾Ð´Ð¾Ð²' })
   @ApiQuery({ name: 'search', required: false })
   @ApiQuery({ name: 'product_id', required: false })
   @ApiQuery({ name: 'is_primary', required: false })
@@ -45,7 +45,7 @@ export class BarcodesController {
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Получить штрихкод по ID' })
+  @ApiOperation({ summary: 'ÐŸÐ¾Ð»ÑƒÑ‡Ð¸Ñ‚ÑŒ ÑˆÑ‚Ñ€Ð¸Ñ…ÐºÐ¾Ð´ Ð¿Ð¾ ID' })
   @ApiParam({ name: 'id' })
   @ApiResponse({ status: 200, type: BarcodeResponseDto })
   @ApiResponse({ status: 404 })
@@ -55,7 +55,7 @@ export class BarcodesController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Создать штрихкод' })
+  @ApiOperation({ summary: 'Ð¡Ð¾Ð·Ð´Ð°Ñ‚ÑŒ ÑˆÑ‚Ñ€Ð¸Ñ…ÐºÐ¾Ð´' })
   @ApiBody({ type: CreateBarcodeDto })
   @ApiResponse({ status: 201, type: BarcodeResponseDto })
   @ApiResponse({ status: 404 })
@@ -65,7 +65,7 @@ export class BarcodesController {
   }
 
   @Put(':id')
-  @ApiOperation({ summary: 'Обновить штрихкод' })
+  @ApiOperation({ summary: 'ÐžÐ±Ð½Ð¾Ð²Ð¸Ñ‚ÑŒ ÑˆÑ‚Ñ€Ð¸Ñ…ÐºÐ¾Ð´' })
   @ApiParam({ name: 'id' })
   @ApiBody({ type: UpdateBarcodeDto })
   @ApiResponse({ status: 200, type: BarcodeResponseDto })
@@ -77,7 +77,7 @@ export class BarcodesController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Удалить штрихкод' })
+  @ApiOperation({ summary: 'Ð£Ð´Ð°Ð»Ð¸Ñ‚ÑŒ ÑˆÑ‚Ñ€Ð¸Ñ…ÐºÐ¾Ð´' })
   @ApiParam({ name: 'id' })
   @ApiResponse({ status: 204 })
   @ApiResponse({ status: 404 })
@@ -85,3 +85,4 @@ export class BarcodesController {
     return this.barcodesService.remove(id);
   }
 }
+

@@ -1,4 +1,4 @@
-import {
+﻿import {
   Controller,
   Get,
   Post,
@@ -25,12 +25,12 @@ import { TaxFilterDto } from '../dto/tax/tax-filter.dto';
 import { TaxResponseDto } from '../dto/tax/tax-response.dto';
 
 @ApiTags('Taxes')
-@Controller('v1/taxes')
+@Controller('taxes')
 export class TaxesController {
   constructor(private readonly taxesService: TaxesService) {}
 
   @Get()
-  @ApiOperation({ summary: 'Получить список налогов' })
+  @ApiOperation({ summary: 'ÐŸÐ¾Ð»ÑƒÑ‡Ð¸Ñ‚ÑŒ ÑÐ¿Ð¸ÑÐ¾Ðº Ð½Ð°Ð»Ð¾Ð³Ð¾Ð²' })
   @ApiQuery({ name: 'search', required: false })
   @ApiQuery({ name: 'is_active', required: false })
   @ApiQuery({ name: 'page', required: false })
@@ -44,7 +44,7 @@ export class TaxesController {
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Получить налог по ID' })
+  @ApiOperation({ summary: 'ÐŸÐ¾Ð»ÑƒÑ‡Ð¸Ñ‚ÑŒ Ð½Ð°Ð»Ð¾Ð³ Ð¿Ð¾ ID' })
   @ApiParam({ name: 'id' })
   @ApiResponse({ status: 200, type: TaxResponseDto })
   @ApiResponse({ status: 404 })
@@ -54,7 +54,7 @@ export class TaxesController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Создать налог' })
+  @ApiOperation({ summary: 'Ð¡Ð¾Ð·Ð´Ð°Ñ‚ÑŒ Ð½Ð°Ð»Ð¾Ð³' })
   @ApiBody({ type: CreateTaxDto })
   @ApiResponse({ status: 201, type: TaxResponseDto })
   @ApiResponse({ status: 409 })
@@ -63,7 +63,7 @@ export class TaxesController {
   }
 
   @Put(':id')
-  @ApiOperation({ summary: 'Обновить налог' })
+  @ApiOperation({ summary: 'ÐžÐ±Ð½Ð¾Ð²Ð¸Ñ‚ÑŒ Ð½Ð°Ð»Ð¾Ð³' })
   @ApiParam({ name: 'id' })
   @ApiBody({ type: UpdateTaxDto })
   @ApiResponse({ status: 200, type: TaxResponseDto })
@@ -75,7 +75,7 @@ export class TaxesController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Удалить налог' })
+  @ApiOperation({ summary: 'Ð£Ð´Ð°Ð»Ð¸Ñ‚ÑŒ Ð½Ð°Ð»Ð¾Ð³' })
   @ApiParam({ name: 'id' })
   @ApiResponse({ status: 204 })
   @ApiResponse({ status: 404 })
@@ -83,3 +83,4 @@ export class TaxesController {
     return this.taxesService.remove(id);
   }
 }
+

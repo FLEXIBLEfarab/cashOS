@@ -1,4 +1,4 @@
-import {
+﻿import {
   Controller,
   Get,
   Post,
@@ -25,12 +25,12 @@ import { PriceFilterDto } from '../dto/price/price-filter.dto';
 import { PriceResponseDto } from '../dto/price/price-response.dto';
 
 @ApiTags('Prices')
-@Controller('v1/prices')
+@Controller('prices')
 export class PricesController {
   constructor(private readonly pricesService: PricesService) {}
 
   @Get()
-  @ApiOperation({ summary: 'Получить список цен' })
+  @ApiOperation({ summary: 'ÐŸÐ¾Ð»ÑƒÑ‡Ð¸Ñ‚ÑŒ ÑÐ¿Ð¸ÑÐ¾Ðº Ñ†ÐµÐ½' })
   @ApiQuery({ name: 'product_id', required: false })
   @ApiQuery({ name: 'branch_id', required: false })
   @ApiQuery({ name: 'is_active', required: false })
@@ -45,7 +45,7 @@ export class PricesController {
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Получить цену по ID' })
+  @ApiOperation({ summary: 'ÐŸÐ¾Ð»ÑƒÑ‡Ð¸Ñ‚ÑŒ Ñ†ÐµÐ½Ñƒ Ð¿Ð¾ ID' })
   @ApiParam({ name: 'id' })
   @ApiResponse({ status: 200, type: PriceResponseDto })
   @ApiResponse({ status: 404 })
@@ -55,7 +55,7 @@ export class PricesController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Создать цену' })
+  @ApiOperation({ summary: 'Ð¡Ð¾Ð·Ð´Ð°Ñ‚ÑŒ Ñ†ÐµÐ½Ñƒ' })
   @ApiBody({ type: CreatePriceDto })
   @ApiResponse({ status: 201, type: PriceResponseDto })
   @ApiResponse({ status: 404 })
@@ -64,7 +64,7 @@ export class PricesController {
   }
 
   @Put(':id')
-  @ApiOperation({ summary: 'Обновить цену' })
+  @ApiOperation({ summary: 'ÐžÐ±Ð½Ð¾Ð²Ð¸Ñ‚ÑŒ Ñ†ÐµÐ½Ñƒ' })
   @ApiParam({ name: 'id' })
   @ApiBody({ type: UpdatePriceDto })
   @ApiResponse({ status: 200, type: PriceResponseDto })
@@ -75,7 +75,7 @@ export class PricesController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Удалить цену' })
+  @ApiOperation({ summary: 'Ð£Ð´Ð°Ð»Ð¸Ñ‚ÑŒ Ñ†ÐµÐ½Ñƒ' })
   @ApiParam({ name: 'id' })
   @ApiResponse({ status: 204 })
   @ApiResponse({ status: 404 })
@@ -83,3 +83,4 @@ export class PricesController {
     return this.pricesService.remove(id);
   }
 }
+

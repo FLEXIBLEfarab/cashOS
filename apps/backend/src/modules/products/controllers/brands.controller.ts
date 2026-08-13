@@ -1,4 +1,4 @@
-import {
+﻿import {
   Controller,
   Get,
   Post,
@@ -25,12 +25,12 @@ import { BrandFilterDto } from '../dto/brand/brand-filter.dto';
 import { BrandResponseDto } from '../dto/brand/brand-response.dto';
 
 @ApiTags('Brands')
-@Controller('v1/brands')
+@Controller('brands')
 export class BrandsController {
   constructor(private readonly brandsService: BrandsService) {}
 
   @Get()
-  @ApiOperation({ summary: 'Получить список брендов' })
+  @ApiOperation({ summary: 'ÐŸÐ¾Ð»ÑƒÑ‡Ð¸Ñ‚ÑŒ ÑÐ¿Ð¸ÑÐ¾Ðº Ð±Ñ€ÐµÐ½Ð´Ð¾Ð²' })
   @ApiQuery({ name: 'search', required: false })
   @ApiQuery({ name: 'is_active', required: false })
   @ApiQuery({ name: 'page', required: false })
@@ -44,7 +44,7 @@ export class BrandsController {
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Получить бренд по ID' })
+  @ApiOperation({ summary: 'ÐŸÐ¾Ð»ÑƒÑ‡Ð¸Ñ‚ÑŒ Ð±Ñ€ÐµÐ½Ð´ Ð¿Ð¾ ID' })
   @ApiParam({ name: 'id' })
   @ApiResponse({ status: 200, type: BrandResponseDto })
   @ApiResponse({ status: 404 })
@@ -54,7 +54,7 @@ export class BrandsController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Создать бренд' })
+  @ApiOperation({ summary: 'Ð¡Ð¾Ð·Ð´Ð°Ñ‚ÑŒ Ð±Ñ€ÐµÐ½Ð´' })
   @ApiBody({ type: CreateBrandDto })
   @ApiResponse({ status: 201, type: BrandResponseDto })
   @ApiResponse({ status: 409 })
@@ -63,7 +63,7 @@ export class BrandsController {
   }
 
   @Put(':id')
-  @ApiOperation({ summary: 'Обновить бренд' })
+  @ApiOperation({ summary: 'ÐžÐ±Ð½Ð¾Ð²Ð¸Ñ‚ÑŒ Ð±Ñ€ÐµÐ½Ð´' })
   @ApiParam({ name: 'id' })
   @ApiBody({ type: UpdateBrandDto })
   @ApiResponse({ status: 200, type: BrandResponseDto })
@@ -75,7 +75,7 @@ export class BrandsController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Удалить бренд' })
+  @ApiOperation({ summary: 'Ð£Ð´Ð°Ð»Ð¸Ñ‚ÑŒ Ð±Ñ€ÐµÐ½Ð´' })
   @ApiParam({ name: 'id' })
   @ApiResponse({ status: 204 })
   @ApiResponse({ status: 404 })
@@ -83,3 +83,4 @@ export class BrandsController {
     return this.brandsService.remove(id);
   }
 }
+

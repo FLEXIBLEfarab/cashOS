@@ -1,4 +1,4 @@
-import {
+﻿import {
   Controller,
   Get,
   Post,
@@ -25,12 +25,12 @@ import { CategoryFilterDto } from '../dto/category/category-filter.dto';
 import { CategoryResponseDto } from '../dto/category/category-response.dto';
 
 @ApiTags('Categories')
-@Controller('v1/categories')
+@Controller('categories')
 export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
 
   @Get()
-  @ApiOperation({ summary: 'Получить список категорий' })
+  @ApiOperation({ summary: 'ÐŸÐ¾Ð»ÑƒÑ‡Ð¸Ñ‚ÑŒ ÑÐ¿Ð¸ÑÐ¾Ðº ÐºÐ°Ñ‚ÐµÐ³Ð¾Ñ€Ð¸Ð¹' })
   @ApiQuery({ name: 'search', required: false })
   @ApiQuery({ name: 'parent_id', required: false })
   @ApiQuery({ name: 'is_active', required: false })
@@ -45,14 +45,14 @@ export class CategoriesController {
   }
 
   @Get('tree')
-  @ApiOperation({ summary: 'Получить дерево категорий' })
+  @ApiOperation({ summary: 'ÐŸÐ¾Ð»ÑƒÑ‡Ð¸Ñ‚ÑŒ Ð´ÐµÑ€ÐµÐ²Ð¾ ÐºÐ°Ñ‚ÐµÐ³Ð¾Ñ€Ð¸Ð¹' })
   @ApiResponse({ status: 200, type: CategoryResponseDto, isArray: true })
   async findTrees(): Promise<CategoryResponseDto[]> {
     return this.categoriesService.findTrees();
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Получить категорию по ID' })
+  @ApiOperation({ summary: 'ÐŸÐ¾Ð»ÑƒÑ‡Ð¸Ñ‚ÑŒ ÐºÐ°Ñ‚ÐµÐ³Ð¾Ñ€Ð¸ÑŽ Ð¿Ð¾ ID' })
   @ApiParam({ name: 'id' })
   @ApiResponse({ status: 200, type: CategoryResponseDto })
   @ApiResponse({ status: 404 })
@@ -62,7 +62,7 @@ export class CategoriesController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Создать категорию' })
+  @ApiOperation({ summary: 'Ð¡Ð¾Ð·Ð´Ð°Ñ‚ÑŒ ÐºÐ°Ñ‚ÐµÐ³Ð¾Ñ€Ð¸ÑŽ' })
   @ApiBody({ type: CreateCategoryDto })
   @ApiResponse({ status: 201, type: CategoryResponseDto })
   async create(@Body() dto: CreateCategoryDto): Promise<CategoryResponseDto> {
@@ -70,7 +70,7 @@ export class CategoriesController {
   }
 
   @Put(':id')
-  @ApiOperation({ summary: 'Обновить категорию' })
+  @ApiOperation({ summary: 'ÐžÐ±Ð½Ð¾Ð²Ð¸Ñ‚ÑŒ ÐºÐ°Ñ‚ÐµÐ³Ð¾Ñ€Ð¸ÑŽ' })
   @ApiParam({ name: 'id' })
   @ApiBody({ type: UpdateCategoryDto })
   @ApiResponse({ status: 200, type: CategoryResponseDto })
@@ -81,7 +81,7 @@ export class CategoriesController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Удалить категорию' })
+  @ApiOperation({ summary: 'Ð£Ð´Ð°Ð»Ð¸Ñ‚ÑŒ ÐºÐ°Ñ‚ÐµÐ³Ð¾Ñ€Ð¸ÑŽ' })
   @ApiParam({ name: 'id' })
   @ApiResponse({ status: 204 })
   @ApiResponse({ status: 404 })
@@ -89,3 +89,4 @@ export class CategoriesController {
     return this.categoriesService.remove(id);
   }
 }
+
