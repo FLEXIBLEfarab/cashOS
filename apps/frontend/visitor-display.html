@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coffee House — Экран посетителя</title>
+<style>
+  :root{
+    --bg:#f7f1e7;
+    --card:#fffaf1;
+    --brown:#4a2b16;
+    --brown2:#6b4528;
+    --gold:#d9a34a;
+    --green:#69a94f;
+    --orange:#e99520;
+    --red:#d95732;
+    --muted:#806f5d;
+    --line:#eadbc8;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    min-height:100vh;
+    font-family:Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color:var(--brown);
+    background:
+      radial-gradient(circle at 10% 10%, rgba(218,185,135,.18), transparent 28%),
+      radial-gradient(circle at 90% 90%, rgba(218,185,135,.18), transparent 28%),
+      var(--bg);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:32px;
+  }
+  .screen{
+    width:min(1180px, 100%);
+    min-height:720px;
+    background:rgba(255,250,241,.88);
+    border:1px solid var(--line);
+    border-radius:28px;
+    box-shadow:0 18px 60px rgba(79,49,24,.13);
+    overflow:hidden;
+    position:relative;
+  }
+  header{
+    height:88px;
+    padding:0 42px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    border-bottom:1px solid var(--line);
+    background:rgba(255,252,246,.8);
+  }
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:13px;
+    font-family:Georgia, serif;
+    font-size:29px;
+    font-weight:700;
+    font-style:italic;
+  }
+  .cup{
+    width:42px;height:42px;border-radius:50%;
+    background:#f1e1c8;
+    display:grid;place-items:center;font-size:22px;
+  }
+  .clock{font-size:15px;color:var(--muted)}
+  main{
+    min-height:632px;
+    display:grid;
+    place-items:center;
+    padding:48px;
+    position:relative;
+  }
+  .content{
+    width:min(880px,100%);
+    text-align:center;
+  }
+  .eyebrow{
+    color:var(--muted);
+    font-size:16px;
+    margin-bottom:12px;
+  }
+  .status-icon{
+    width:104px;height:104px;
+    border-radius:50%;
+    margin:0 auto 22px;
+    display:grid;place-items:center;
+    background:#dfeeda;
+    color:#4d8e39;
+    font-size:53px;
+    box-shadow:0 10px 30px rgba(91,143,66,.14);
+  }
+  h1{
+    margin:0;
+    font-size:48px;
+    letter-spacing:-1.4px;
+    line-height:1.08;
+  }
+  .subtitle{
+    margin:15px auto 32px;
+    color:var(--muted);
+    font-size:19px;
+    max-width:680px;
+    line-height:1.55;
+  }
+  .order-card{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:0;
+    text-align:left;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:20px;
+    overflow:hidden;
+    box-shadow:0 8px 24px rgba(79,49,24,.07);
+  }
+  .order-main,.order-meta{padding:26px 30px}
+  .order-main{border-right:1px solid var(--line)}
+  .label{
+    color:var(--muted);
+    font-size:13px;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    margin-bottom:8px;
+  }
+  .table-number{
+    font-size:31px;
+    font-weight:750;
+    margin-bottom:20px;
+  }
+  .items{display:grid;gap:11px}
+  .item{
+    display:flex;justify-content:space-between;gap:18px;
+    font-size:16px;
+  }
+  .item span:last-child{font-weight:650;white-space:nowrap}
+  .meta-row{
+    display:flex;justify-content:space-between;
+    padding:12px 0;border-bottom:1px solid var(--line);
+    font-size:15px;
+  }
+  .meta-row:last-child{border-bottom:0}
+  .meta-row span:first-child{color:var(--muted)}
+  .total{
+    margin-top:20px;
+    display:flex;justify-content:space-between;
+    font-size:20px;font-weight:750;
+  }
+  .hint{
+    margin-top:28px;
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    color:var(--muted);
+    font-size:14px;
+  }
+  .dot{width:9px;height:9px;border-radius:50%;background:var(--green)}
+  footer{
+    position:absolute;
+    bottom:24px;left:42px;right:42px;
+    display:flex;justify-content:space-between;
+    color:#9a8875;font-size:13px;
+  }
+  .demo{
+    position:fixed;
+    left:18px;bottom:18px;
+    display:flex;gap:7px;flex-wrap:wrap;
+    max-width:360px;
+    background:rgba(74,43,22,.94);
+    padding:10px;border-radius:14px;
+  }
+  .demo button{
+    border:0;border-radius:9px;padding:8px 10px;
+    background:#fff8ed;color:var(--brown);
+    cursor:pointer;font-size:12px;
+  }
+  .demo button:hover{background:#f3dfc4}
+  .hidden{display:none}
+  .status-progress{
+    width:min(560px,100%);
+    height:7px;border-radius:10px;
+    background:#eadfce;margin:22px auto 0;overflow:hidden;
+  }
+  .status-progress span{
+    display:block;height:100%;width:100%;
+    background:var(--green);border-radius:inherit;
+  }
+
+  @media(max-width:720px){
+    body{padding:12px}
+    .screen{min-height:calc(100vh - 24px);border-radius:18px}
+    header{padding:0 20px;height:72px}
+    .brand{font-size:22px}
+    .clock{display:none}
+    main{padding:34px 18px;min-height:calc(100vh - 96px)}
+    h1{font-size:34px}
+    .subtitle{font-size:16px}
+    .order-card{grid-template-columns:1fr}
+    .order-main{border-right:0;border-bottom:1px solid var(--line)}
+    .order-main,.order-meta{padding:22px}
+    footer{left:20px;right:20px}
+    .demo{display:none}
+  }
+</style>
+</head>
+<body>
+
+<section class="screen">
+  <header>
+    <div class="brand"><div class="cup">☕</div>Coffee House</div>
+    <div class="clock" id="clock"></div>
+  </header>
+
+  <main>
+    <div class="content">
+      <div class="eyebrow" id="eyebrow">Статус заказа</div>
+      <div class="status-icon" id="statusIcon">✓</div>
+      <h1 id="title">Ваш заказ готов!</h1>
+      <div class="subtitle" id="subtitle">
+        Можно забрать заказ у стойки выдачи. Приятного аппетита!
+      </div>
+
+      <div class="order-card">
+        <div class="order-main">
+          <div class="label">Ваш столик</div>
+          <div class="table-number" id="tableNumber">Стол №2</div>
+
+          <div class="label">Заказ</div>
+          <div class="items" id="items">
+            <div class="item"><span>2 × Капучино</span><span>3 200 ₸</span></div>
+            <div class="item"><span>1 × Латте</span><span>1 700 ₸</span></div>
+          </div>
+        </div>
+
+        <div class="order-meta">
+          <div class="meta-row"><span>Номер заказа</span><span id="orderNumber">#1048</span></div>
+          <div class="meta-row"><span>Готово в</span><span id="readyTime">12:34</span></div>
+          <div class="meta-row"><span>Выдача</span><span>Стойка</span></div>
+          <div class="total"><span>Итого</span><span id="total">4 900 ₸</span></div>
+        </div>
+      </div>
+
+      <div class="status-progress"><span id="progress"></span></div>
+      <div class="hint"><span class="dot"></span><span id="hintText">Официант уже может принести заказ</span></div>
+    </div>
+  </main>
+
+  <footer>
+    <span>Спасибо, что выбрали Coffee House</span>
+    <span>Экран посетителя</span>
+  </footer>
+</section>
+
+<div class="demo" aria-label="Демо управления">
+  <button onclick="updateOrderStatus('new')">Новый</button>
+  <button onclick="updateOrderStatus('cooking')">Готовится</button>
+  <button onclick="updateOrderStatus('ready')">Готов</button>
+  <button onclick="updateOrderStatus('served')">Выдан</button>
+</div>
+
+<script>
+  /*
+    BACKEND INTEGRATION
+    -------------------
+    Этот файл специально сделан автономным.
+
+    В будущем backend может передавать сюда объект:
+    {
+      orderId: "1048",
+      table: 2,
+      status: "ready",
+      readyTime: "12:34",
+      total: 4900,
+      items: [
+        { name: "Капучино", qty: 2, price: 3200 },
+        { name: "Латте", qty: 1, price: 1700 }
+      ]
+    }
+
+    Тогда достаточно вызвать:
+      updateVisitorScreen(order);
+
+    Например, через WebSocket:
+      socket.onmessage = event => {
+        updateVisitorScreen(JSON.parse(event.data));
+      }
+
+    Или через обычный API/fetch.
+  */
+
+  const demoOrder = {
+    orderId: "1048",
+    table: 2,
+    status: "ready",
+    readyTime: "12:34",
+    total: 4900,
+    items: [
+      { name: "Капучино", qty: 2, price: 3200 },
+      { name: "Латте", qty: 1, price: 1700 }
+    ]
+  };
+
+  const states = {
+    new: {
+      icon: "•",
+      title: "Заказ принят",
+      subtitle: "Мы получили ваш заказ и уже передали его сотрудникам.",
+      hint: "Заказ принят в работу",
+      progress: "25%",
+      iconBg: "#f7e6c6",
+      iconColor: "#b67a16",
+      bar: "#e9a52b"
+    },
+    cooking: {
+      icon: "♨",
+      title: "Ваш заказ готовится",
+      subtitle: "Повар уже готовит ваш заказ. Мы сообщим, когда всё будет готово.",
+      hint: "Заказ находится на кухне",
+      progress: "65%",
+      iconBg: "#f8e3cf",
+      iconColor: "#d36b25",
+      bar: "#e18a2a"
+    },
+    ready: {
+      icon: "✓",
+      title: "Ваш заказ готов!",
+      subtitle: "Можно забрать заказ у стойки выдачи. Приятного аппетита!",
+      hint: "Официант уже может принести заказ",
+      progress: "100%",
+      iconBg: "#dfeeda",
+      iconColor: "#4d8e39",
+      bar: "#69a94f"
+    },
+    served: {
+      icon: "✓",
+      title: "Приятного аппетита!",
+      subtitle: "Ваш заказ уже выдан. Спасибо, что выбрали Coffee House.",
+      hint: "Заказ завершён",
+      progress: "100%",
+      iconBg: "#e7e0d7",
+      iconColor: "#735b45",
+      bar: "#8b745d"
+    }
+  };
+
+  function money(value) {
+    return new Intl.NumberFormat("ru-RU").format(value) + " ₸";
+  }
+
+  function updateVisitorScreen(order) {
+    const state = states[order.status] || states.new;
+
+    document.getElementById("statusIcon").textContent = state.icon;
+    document.getElementById("statusIcon").style.background = state.iconBg;
+    document.getElementById("statusIcon").style.color = state.iconColor;
+
+    document.getElementById("title").textContent = state.title;
+    document.getElementById("subtitle").textContent = state.subtitle;
+    document.getElementById("hintText").textContent = state.hint;
+    document.getElementById("progress").style.width = state.progress;
+    document.getElementById("progress").style.background = state.bar;
+
+    document.getElementById("tableNumber").textContent = "Стол №" + order.table;
+    document.getElementById("orderNumber").textContent = "#" + order.orderId;
+    document.getElementById("readyTime").textContent = order.readyTime || "—";
+    document.getElementById("total").textContent = money(order.total || 0);
+
+    const items = document.getElementById("items");
+    items.innerHTML = "";
+    (order.items || []).forEach(item => {
+      const row = document.createElement("div");
+      row.className = "item";
+      row.innerHTML =
+        `<span>${item.qty} × ${item.name}</span><span>${money(item.price)}</span>`;
+      items.appendChild(row);
+    });
+  }
+
+  function updateClock() {
+    const now = new Date();
+    document.getElementById("clock").textContent =
+      now.toLocaleDateString("ru-RU", {day:"2-digit", month:"long"}) +
+      " · " +
+      now.toLocaleTimeString("ru-RU", {hour:"2-digit", minute:"2-digit"});
+  }
+
+  const urlParams = new URLSearchParams(window.location.search);
+  let orderId = urlParams.get('orderId') || localStorage.getItem('active_order_id');
+
+  function fetchOrderStatus() {
+    if (!orderId) {
+      // Fetch last order
+      fetch('/v1/orders')
+        .then(res => res.json())
+        .then(res => {
+          const list = res.data;
+          if (list && list.length > 0) {
+            const lastOrder = list[list.length - 1];
+            updateVisitorScreen({
+              table: lastOrder.table,
+              orderId: lastOrder.number,
+              readyTime: lastOrder.readyTime || "—",
+              total: lastOrder.total,
+              status: lastOrder.status === 'completed' ? 'served' : lastOrder.status === 'ready' ? 'ready' : lastOrder.status === 'progress' ? 'cooking' : 'new',
+              items: lastOrder.items.map(i => ({ name: i.name, qty: i.qty, price: i.price || 1500 }))
+            });
+          }
+        })
+        .catch(err => console.error('Error fetching list:', err));
+      return;
+    }
+
+    fetch('/v1/orders/' + orderId)
+      .then(res => res.json())
+      .then(res => {
+        const order = res.data;
+        updateVisitorScreen({
+          table: order.table,
+          orderId: order.number,
+          readyTime: order.readyTime || "—",
+          total: order.total,
+          status: order.status === 'completed' ? 'served' : order.status === 'ready' ? 'ready' : order.status === 'progress' ? 'cooking' : 'new',
+          items: order.items.map(i => ({ name: i.name, qty: i.qty, price: i.price || 1500 }))
+        });
+      })
+      .catch(err => {
+        console.error('Error fetching order status:', err);
+      });
+  }
+
+  fetchOrderStatus();
+  setInterval(fetchOrderStatus, 3000);
+  updateClock();
+  setInterval(updateClock, 1000);
+</script>
+</body>
+</html>

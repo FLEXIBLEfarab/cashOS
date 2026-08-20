@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Coffee House — Кухня</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Playfair+Display:wght@600&display=swap"
+    rel="stylesheet"
+  >
+
+  <link rel="stylesheet" href="kitchen.css">
+</head>
+
+<body>
+
+<main class="kitchen-app">
+
+  <!-- ============================= -->
+  <!-- ВЕРХНЯЯ ПАНЕЛЬ -->
+  <!-- ============================= -->
+
+  <header class="topbar">
+
+    <div class="brand">
+      <div class="brand-mark">☕</div>
+
+      <span>
+        Coffee House
+      </span>
+    </div>
+
+
+    <div class="kitchen-title">
+      🍳 Кухня
+    </div>
+
+
+    <!-- КНОПКА СОСТОЯНИЯ КУХНИ -->
+
+    <button
+      class="chef-status"
+      id="kitchenToggle"
+      type="button"
+    >
+
+      <span class="status-dot"></span>
+
+      <span id="kitchenStatus">
+        Кухня работает
+      </span>
+
+    </button>
+
+  </header>
+
+
+  <!-- ============================= -->
+  <!-- ОСНОВНАЯ ЧАСТЬ -->
+  <!-- ============================= -->
+
+  <section class="content">
+
+
+    <!-- ============================= -->
+    <!-- ЛЕВАЯ ПАНЕЛЬ -->
+    <!-- ============================= -->
+
+    <aside class="sidebar">
+
+      <h2>
+        Заказы
+      </h2>
+
+
+      <!-- НОВЫЕ -->
+
+      <button
+        class="tab active"
+        data-tab="new"
+        type="button"
+      >
+
+        <span class="tab-icon">
+          🔴
+        </span>
+
+        <span>
+          Новые заказы
+        </span>
+
+        <b id="newCount">
+          0
+        </b>
+
+      </button>
+
+
+      <!-- В ПРОЦЕССЕ -->
+
+      <button
+        class="tab"
+        data-tab="process"
+        type="button"
+      >
+
+        <span class="tab-icon">
+          🟠
+        </span>
+
+        <span>
+          В процессе
+        </span>
+
+        <b id="processCount">
+          0
+        </b>
+
+      </button>
+
+
+      <!-- ГОТОВЫЕ -->
+
+      <button
+        class="tab"
+        data-tab="ready"
+        type="button"
+      >
+
+        <span class="tab-icon">
+          🟢
+        </span>
+
+        <span>
+          Готовые
+        </span>
+
+        <b id="readyCount">
+          0
+        </b>
+
+      </button>
+
+
+      <!-- ИСТОРИЯ -->
+
+      <button
+        class="tab"
+        data-tab="history"
+        type="button"
+      >
+
+        <span class="tab-icon">
+          📋
+        </span>
+
+        <span>
+          История заказов
+        </span>
+
+        <b id="historyCount">
+          0
+        </b>
+
+      </button>
+
+
+      <!-- СРЕДНЕЕ ВРЕМЯ -->
+
+      <div class="sidebar-info">
+
+        <div class="info-icon">
+          ⏱
+        </div>
+
+        <div>
+
+          <strong>
+            Среднее время
+          </strong>
+
+          <span id="averageTime">
+            —
+          </span>
+
+        </div>
+
+      </div>
+
+    </aside>
+
+
+    <!-- ============================= -->
+    <!-- ЗАКАЗЫ -->
+    <!-- ============================= -->
+
+    <section class="orders-area">
+
+
+      <!-- ЗАГОЛОВОК -->
+
+      <div class="orders-header">
+
+        <div>
+
+          <h1 id="pageTitle">
+            Новые заказы
+          </h1>
+
+          <p id="pageDescription">
+            Заказы ожидают приготовления
+          </p>
+
+        </div>
+
+
+        <div class="order-counter">
+
+          <span id="visibleCount">
+            0
+          </span>
+
+          <span>
+            заказов
+          </span>
+
+        </div>
+
+      </div>
+
+
+      <!-- ============================= -->
+      <!-- НОВЫЕ ЗАКАЗЫ -->
+      <!-- ============================= -->
+
+      <div
+        class="orders-list active-list"
+        id="newOrders"
+      >
+
+        <!-- JS -->
+
+      </div>
+
+
+      <!-- ============================= -->
+      <!-- В ПРОЦЕССЕ -->
+      <!-- ============================= -->
+
+      <div
+        class="orders-list"
+        id="processOrders"
+      >
+
+        <!-- JS -->
+
+      </div>
+
+
+      <!-- ============================= -->
+      <!-- ГОТОВЫЕ -->
+      <!-- ============================= -->
+
+      <div
+        class="orders-list"
+        id="readyOrders"
+      >
+
+        <!-- JS -->
+
+      </div>
+
+
+      <!-- ============================= -->
+      <!-- ИСТОРИЯ -->
+      <!-- ============================= -->
+
+      <div
+        class="orders-list"
+        id="historyOrders"
+      >
+
+        <!-- JS -->
+
+      </div>
+
+    </section>
+
+
+    <!-- ============================= -->
+    <!-- ПРАВАЯ ПАНЕЛЬ -->
+    <!-- ============================= -->
+
+    <aside class="right-panel">
+
+
+      <!-- ВСЕ ЗАКАЗЫ -->
+
+      <div class="stat-card">
+
+        <span>
+          Все заказы
+        </span>
+
+        <strong id="allOrders">
+          0
+        </strong>
+
+        <small>
+          сегодня
+        </small>
+
+      </div>
+
+
+      <!-- В ПРОЦЕССЕ -->
+
+      <div class="stat-card">
+
+        <span>
+          В процессе
+        </span>
+
+        <strong id="rightProcessCount">
+          0
+        </strong>
+
+        <small>
+          сейчас
+        </small>
+
+      </div>
+
+
+      <!-- СРЕДНЕЕ ВРЕМЯ -->
+
+      <div class="stat-card">
+
+        <span>
+          Среднее время
+        </span>
+
+        <strong id="rightAverageTime">
+          —
+        </strong>
+
+        <small>
+          приготовления
+        </small>
+
+      </div>
+
+
+      <!-- СОВЕТ -->
+
+      <div class="tip-card">
+
+        <div class="tip-icon">
+          ☕
+        </div>
+
+        <h3>
+          Отличная работа!
+        </h3>
+
+        <p>
+          Следите за качеством
+          и скоростью приготовления.
+        </p>
+
+      </div>
+
+
+    </aside>
+
+  </section>
+
+
+  <!-- ============================= -->
+  <!-- НИЖНЯЯ ПАНЕЛЬ -->
+  <!-- ============================= -->
+
+  <footer class="bottom-bar">
+
+    <span>
+      Coffee House • Kitchen
+    </span>
+
+    <span>
+
+      Последнее обновление:
+
+      <strong id="lastUpdate">
+        только что
+      </strong>
+
+    </span>
+
+  </footer>
+
+</main>
+
+
+<script src="kitchen.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Coffee House — Интерфейс официанта</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;1,600&display=swap"
+    rel="stylesheet"
+  >
+
+  <link rel="stylesheet" href="waiter-style.css">
+</head>
+
+<body>
+
+<main class="waiter-app">
+
+  <!-- ======================================== -->
+  <!-- БОКОВОЕ МЕНЮ -->
+  <!-- ======================================== -->
+
+  <aside class="sidebar">
+
+    <div class="brand">
+      <div class="brand-mark">☕</div>
+      <span>Coffee House</span>
+    </div>
+
+    <nav class="nav">
+
+      <a href="#" class="nav-item" data-view="home">
+        <span class="nav-icon">🏠</span>
+        <span>Главная</span>
+      </a>
+
+      <a href="#" class="nav-item" data-view="tables">
+        <span class="nav-icon">▦</span>
+        <span>Столы</span>
+      </a>
+
+      <a href="#" class="nav-item active" data-view="orders">
+        <span class="nav-icon">🧾</span>
+        <span>Заказы</span>
+      </a>
+
+      <a href="#" class="nav-item" data-view="history">
+        <span class="nav-icon">🕘</span>
+        <span>История</span>
+      </a>
+
+      <a href="#" class="nav-item" data-view="cashier">
+        <span class="nav-icon">💳</span>
+        <span>Касса</span>
+      </a>
+
+      <a href="#" class="nav-item" data-view="menu">
+        <span class="nav-icon">📋</span>
+        <span>Меню</span>
+      </a>
+
+      <a href="#" class="nav-item" data-view="notifications">
+        <span class="nav-icon">🔔</span>
+        <span>Уведомления</span>
+        <span class="nav-badge" id="notifBadge">3</span>
+      </a>
+
+      <a href="#" class="nav-item" data-view="settings">
+        <span class="nav-icon">⚙</span>
+        <span>Настройки</span>
+      </a>
+
+    </nav>
+
+    <a href="#" class="nav-item logout">
+      <span class="nav-icon">⏻</span>
+      <span>Выход</span>
+    </a>
+
+  </aside>
+
+
+  <!-- ======================================== -->
+  <!-- ГЛАВНАЯ -->
+  <!-- ======================================== -->
+
+  <section class="home-view" id="homeView">
+
+    <header class="home-header">
+
+      <div>
+
+        <span class="home-date" id="homeDate">
+          15 августа
+        </span>
+
+        <h1>
+          Добро пожаловать 👋
+        </h1>
+
+        <p>
+          Вот что происходит в Coffee House сегодня.
+        </p>
+
+      </div>
+
+
+      <div class="home-clock">
+
+        <span>
+          Сейчас
+        </span>
+
+        <strong id="homeTime">
+          00:00
+        </strong>
+
+      </div>
+
+    </header>
+
+
+    <!-- ======================================== -->
+    <!-- СТАТИСТИКА -->
+    <!-- ======================================== -->
+
+    <div class="home-stats">
+
+      <div class="home-stat-card">
+
+        <div class="home-stat-icon">
+          🪑
+        </div>
+
+        <div>
+          <span>Занятые столы</span>
+
+          <strong id="homeBusyTables">
+            0
+          </strong>
+
+          <small>
+            из 12 столов
+          </small>
+        </div>
+
+      </div>
+
+
+      <div class="home-stat-card">
+
+        <div class="home-stat-icon">
+          🧾
+        </div>
+
+        <div>
+          <span>Заказов сегодня</span>
+
+          <strong id="homeOrders">
+            0
+          </strong>
+
+          <small>
+            всего
+          </small>
+        </div>
+
+      </div>
+
+
+      <div class="home-stat-card">
+
+        <div class="home-stat-icon">
+          🍳
+        </div>
+
+        <div>
+          <span>В работе</span>
+
+          <strong id="homeActiveOrders">
+            0
+          </strong>
+
+          <small>
+            сейчас
+          </small>
+        </div>
+
+      </div>
+
+
+      <div class="home-stat-card">
+
+        <div class="home-stat-icon">
+          💰
+        </div>
+
+        <div>
+          <span>Выручка</span>
+
+          <strong id="homeRevenue">
+            0 ₸
+          </strong>
+
+          <small>
+            сегодня
+          </small>
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- ======================================== -->
+    <!-- БЫСТРЫЕ ДЕЙСТВИЯ -->
+    <!-- ======================================== -->
+
+    <section class="home-section">
+
+      <div class="home-section-header">
+
+        <div>
+          <h2>
+            Быстрый доступ
+          </h2>
+
+          <p>
+            Основные разделы официанта
+          </p>
+        </div>
+
+      </div>
+
+
+      <div class="quick-actions">
+
+        <button
+          class="quick-action"
+          data-action="orders"
+          type="button"
+        >
+
+          <span>🧾</span>
+
+          <div>
+            <strong>Заказы</strong>
+
+            <small>
+              Управление заказами
+            </small>
+          </div>
+
+        </button>
+
+
+        <button
+          class="quick-action"
+          data-action="tables"
+          type="button"
+        >
+
+          <span>🪑</span>
+
+          <div>
+            <strong>Столы</strong>
+
+            <small>
+              Занятость столов
+            </small>
+          </div>
+
+        </button>
+
+
+        <button
+          class="quick-action"
+          data-action="history"
+          type="button"
+        >
+
+          <span>🕘</span>
+
+          <div>
+            <strong>История</strong>
+
+            <small>
+              Завершённые заказы
+            </small>
+          </div>
+
+        </button>
+
+
+        <button
+          class="quick-action"
+          data-action="cashier"
+          type="button"
+        >
+
+          <span>💳</span>
+
+          <div>
+            <strong>Касса</strong>
+
+            <small>
+              Оплата и выручка
+            </small>
+          </div>
+
+        </button>
+
+      </div>
+
+    </section>
+
+
+    <!-- ======================================== -->
+    <!-- СОСТОЯНИЕ СТОЛОВ -->
+    <!-- ======================================== -->
+
+    <section class="home-section">
+
+      <div class="home-section-header">
+
+        <div>
+
+          <h2>
+            Состояние столов
+          </h2>
+
+          <p>
+            Нажмите на стол, чтобы открыть его заказ
+          </p>
+
+        </div>
+
+
+        <button
+          class="home-open-tables"
+          id="openTablesBtn"
+          type="button"
+        >
+          Все столы →
+        </button>
+
+      </div>
+
+
+      <div
+        class="home-tables"
+        id="homeTables"
+      ></div>
+
+    </section>
+
+  </section>
+
+
+  <!-- ======================================== -->
+  <!-- ОСНОВНАЯ ЧАСТЬ: ЗАКАЗЫ -->
+  <!-- ======================================== -->
+
+  <section class="board-area">
+
+    <header class="board-header">
+
+      <h1>Заказы</h1>
+
+      <div class="search-box">
+
+        <span class="search-icon">
+          🔍
+        </span>
+
+        <input
+          type="text"
+          id="searchInput"
+          placeholder="Поиск по столу или блюду"
+        >
+
+      </div>
+
+    </header>
+
+
+    <div class="tabs" id="tabs">
+
+      <button
+        class="tab active"
+        data-tab="all"
+      >
+        Все
+      </button>
+
+
+      <button
+        class="tab"
+        data-tab="new"
+      >
+        Новые
+
+        <span
+          class="tab-count"
+          id="tabCountNew"
+        >
+          0
+        </span>
+
+      </button>
+
+
+      <button
+        class="tab"
+        data-tab="progress"
+      >
+        В работе
+
+        <span
+          class="tab-count"
+          id="tabCountProgress"
+        >
+          0
+        </span>
+
+      </button>
+
+
+      <button
+        class="tab"
+        data-tab="ready"
+      >
+        Готовы
+
+        <span
+          class="tab-count"
+          id="tabCountReady"
+        >
+          0
+        </span>
+
+      </button>
+
+
+      <button
+        class="filter-btn"
+        id="clearFilterBtn"
+        hidden
+      >
+        ✕ Стол
+        <span id="filterTableLabel"></span>
+      </button>
+
+    </div>
+
+
+    <div
+      class="board"
+      id="board"
+    >
+
+      <section
+        class="board-column"
+        data-status="new"
+      >
+
+        <div class="column-head">
+
+          <h2>
+            Новый заказ
+          </h2>
+
+          <span
+            class="column-count"
+            id="colCountNew"
+          >
+            0
+          </span>
+
+        </div>
+
+        <div
+          class="cards"
+          id="colNew"
+        ></div>
+
+      </section>
+
+
+      <section
+        class="board-column"
+        data-status="progress"
+      >
+
+        <div class="column-head">
+
+          <h2>
+            В работе
+          </h2>
+
+          <span
+            class="column-count"
+            id="colCountProgress"
+          >
+            0
+          </span>
+
+        </div>
+
+        <div
+          class="cards"
+          id="colProgress"
+        ></div>
+
+      </section>
+
+
+      <section
+        class="board-column"
+        data-status="ready"
+      >
+
+        <div class="column-head">
+
+          <h2>
+            Готов
+          </h2>
+
+          <span
+            class="column-count"
+            id="colCountReady"
+          >
+            0
+          </span>
+
+        </div>
+
+        <div
+          class="cards"
+          id="colReady"
+        ></div>
+
+      </section>
+
+    </div>
+
+  </section>
+
+
+  <!-- ======================================== -->
+  <!-- ПАНЕЛЬ СТОЛОВ -->
+  <!-- ======================================== -->
+
+  <aside class="tables-panel">
+
+    <div class="tables-head">
+
+      <h2>
+        Столы
+      </h2>
+
+      <button
+        class="sort-btn"
+        title="Сортировка"
+        type="button"
+      >
+        ⇅
+      </button>
+
+    </div>
+
+
+    <div
+      class="tables-grid"
+      id="tablesGrid"
+    ></div>
+
+
+    <div class="legend">
+
+      <div class="legend-item">
+        <span class="dot dot-free"></span>
+        Свободен
+      </div>
+
+      <div class="legend-item">
+        <span class="dot dot-order"></span>
+        Есть заказ
+      </div>
+
+      <div class="legend-item">
+        <span class="dot dot-cooking"></span>
+        Готовится
+      </div>
+
+      <div class="legend-item">
+        <span class="dot dot-bill"></span>
+        Просит счёт
+      </div>
+
+    </div>
+
+  </aside>
+
+
+  <!-- ======================================== -->
+  <!-- TOAST -->
+  <!-- ======================================== -->
+
+  <div
+    class="toast"
+    id="toast"
+  ></div>
+
+</main>
+
+
+<script src="waiter-script.js"></script>
+
+</body>
+</html>

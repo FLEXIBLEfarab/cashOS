@@ -1,0 +1,1709 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Coffee House — Заказ</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;1,600&display=swap"
+    rel="stylesheet"
+  >
+
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<main class="visitor-app">
+
+  <!-- ======================================== -->
+  <!-- ВЕРХНЯЯ ПАНЕЛЬ -->
+  <!-- ======================================== -->
+
+  <header class="topbar">
+
+    <div class="brand">
+      <div class="brand-mark">☕</div>
+      <span>Coffee House</span>
+    </div>
+
+    <div class="table-badge" id="tableBadge">
+      Столик №2
+    </div>
+
+  </header>
+
+
+  <!-- ======================================== -->
+  <!-- ОСНОВНАЯ ЧАСТЬ -->
+  <!-- ======================================== -->
+
+  <section class="content">
+
+    <!-- ======================================== -->
+    <!-- КАТЕГОРИИ -->
+    <!-- ======================================== -->
+
+    <aside class="categories" aria-label="Категории">
+
+      <button class="category active" data-category="Кофе">
+        <span>☕</span>
+        <span class="category-text">Кофе</span>
+      </button>
+
+      <button class="category" data-category="Напитки">
+        <span>🥤</span>
+        <span class="category-text">Напитки</span>
+      </button>
+
+      <button class="category" data-category="Десерты">
+        <span>🍰</span>
+        <span class="category-text">Десерты</span>
+      </button>
+
+      <button class="category" data-category="Еда">
+        <span>🍴</span>
+        <span class="category-text">Еда</span>
+      </button>
+
+      <button class="category" data-category="Завтраки">
+        <span>🍳</span>
+        <span class="category-text">Завтраки</span>
+      </button>
+
+    </aside>
+
+
+    <!-- ======================================== -->
+    <!-- ТОВАРЫ -->
+    <!-- ======================================== -->
+
+    <section class="products">
+
+
+      <!-- ======================================== -->
+      <!-- КОФЕ -->
+      <!-- ======================================== -->
+
+      <div class="category-content active" data-category="Кофе">
+
+        <h1>Кофе</h1>
+
+        <div class="product-grid">
+
+          <article class="product-card" data-name="Эспрессо" data-price="1000">
+            <div class="product-image">☕</div>
+
+            <div class="product-info">
+              <h2>Эспрессо</h2>
+              <strong>1000 ₸</strong>
+            </div>
+
+            <button class="add-btn" type="button">+</button>
+          </article>
+
+
+          <article class="product-card" data-name="Американо" data-price="1200">
+            <div class="product-image">☕</div>
+
+            <div class="product-info">
+              <h2>Американо</h2>
+              <strong>1200 ₸</strong>
+            </div>
+
+            <button class="add-btn" type="button">+</button>
+          </article>
+
+
+          <article class="product-card" data-name="Капучино" data-price="1600">
+            <div class="product-image">☕</div>
+
+            <div class="product-info">
+              <h2>Капучино</h2>
+              <strong>1600 ₸</strong>
+            </div>
+
+            <button class="add-btn" type="button">+</button>
+          </article>
+
+
+          <article class="product-card" data-name="Латте" data-price="1700">
+            <div class="product-image">🥛</div>
+
+            <div class="product-info">
+              <h2>Латте</h2>
+              <strong>1700 ₸</strong>
+            </div>
+
+            <button class="add-btn" type="button">+</button>
+          </article>
+
+
+          <article class="product-card" data-name="Раф" data-price="1900">
+            <div class="product-image">☕</div>
+
+            <div class="product-info">
+              <h2>Раф</h2>
+              <strong>1900 ₸</strong>
+            </div>
+
+            <button class="add-btn" type="button">+</button>
+          </article>
+
+
+          <article class="product-card" data-name="Флэт Уайт" data-price="1700">
+            <div class="product-image">☕</div>
+
+            <div class="product-info">
+              <h2>Флэт Уайт</h2>
+              <strong>1700 ₸</strong>
+            </div>
+
+            <button class="add-btn" type="button">+</button>
+          </article>
+
+        </div>
+
+      </div>
+
+
+      <!-- ======================================== -->
+      <!-- НАПИТКИ -->
+      <!-- ======================================== -->
+
+      <div class="category-content" data-category="Напитки">
+
+        <h1>Напитки</h1>
+
+        <div class="product-grid">
+
+          <article class="product-card" data-name="Кола" data-price="800">
+            <div class="product-image">🥤</div>
+
+            <div class="product-info">
+              <h2>Кола</h2>
+              <strong>800 ₸</strong>
+            </div>
+
+            <button class="add-btn" type="button">+</button>
+          </article>
+
+
+          <article class="product-card" data-name="Спрайт" data-price="800">
+            <div class="product-image">🥤</div>
+
+            <div class="product-info">
+              <h2>Спрайт</h2>
+              <strong>800 ₸</strong>
+            </div>
+
+            <button class="add-btn" type="button">+</button>
+          </article>
+
+
+          <article class="product-card" data-name="Фанта" data-price="800">
+            <div class="product-image">🥤</div>
+
+            <div class="product-info">
+              <h2>Фанта</h2>
+              <strong>800 ₸</strong>
+            </div>
+
+            <button class="add-btn" type="button">+</button>
+          </article>
+
+
+          <article class="product-card" data-name="Лимонад" data-price="1200">
+            <div class="product-image">🍋</div>
+
+            <div class="product-info">
+              <h2>Лимонад</h2>
+              <strong>1200 ₸</strong>
+            </div>
+
+            <button class="add-btn" type="button">+</button>
+          </article>
+
+
+          <article class="product-card" data-name="Апельсиновый сок" data-price="1300">
+            <div class="product-image">🍊</div>
+
+            <div class="product-info">
+              <h2>Апельсиновый сок</h2>
+              <strong>1300 ₸</strong>
+            </div>
+
+            <button class="add-btn" type="button">+</button>
+          </article>
+
+
+          <article class="product-card" data-name="Яблочный сок" data-price="1300">
+            <div class="product-image">🍎</div>
+
+            <div class="product-info">
+              <h2>Яблочный сок</h2>
+              <strong>1300 ₸</strong>
+            </div>
+
+            <button class="add-btn" type="button">+</button>
+          </article>
+
+
+          <article class="product-card" data-name="Минеральная вода" data-price="600">
+            <div class="product-image">💧</div>
+
+            <div class="product-info">
+              <h2>Минеральная вода</h2>
+              <strong>600 ₸</strong>
+            </div>
+
+            <button class="add-btn" type="button">+</button>
+          </article>
+
+
+          <article class="product-card" data-name="Холодный чай" data-price="1000">
+            <div class="product-image">🧋</div>
+
+            <div class="product-info">
+              <h2>Холодный чай</h2>
+              <strong>1000 ₸</strong>
+            </div>
+
+            <button class="add-btn" type="button">+</button>
+          </article>
+
+        </div>
+
+      </div>
+
+
+      <!-- ======================================== -->
+      <!-- ДЕСЕРТЫ -->
+      <!-- ======================================== -->
+
+      <div class="category-content" data-category="Десерты">
+
+        <h1>Десерты</h1>
+
+        <div class="product-grid">
+
+          <article class="product-card" data-name="Чизкейк" data-price="1800">
+            <div class="product-image">🍰</div>
+
+            <div class="product-info">
+              <h2>Чизкейк</h2>
+              <strong>1800 ₸</strong>
+            </div>
+
+            <button class="add-btn" type="button">+</button>
+          </article>
+
+
+          <article class="product-card" data-name="Тирамису" data-price="1900">
+            <div class="product-image">🍰</div>
+
+            <div class="product-info">
+              <h2>Тирамису</h2>
+              <strong>1900 ₸</strong>
+            </div>
+
+            <button class="add-btn" type="button">+</button>
+          </article>
+
+
+          <article class="product-card" data-name="Шоколадный торт" data-price="2000">
+            <div class="product-image">🍫</div>
+
+            <div class="product-info">
+              <h2>Шоколадный торт</h2>
+              <strong>2000 ₸</strong>
+            </div>
+
+            <button class="add-btn" type="button">+</button>
+          </article>
+
+
+          <article class="product-card" data-name="Морковный торт" data-price="1900">
+            <div class="product-image">🍰</div>
+
+            <div class="product-info">
+              <h2>Морковный торт</h2>
+              <strong>1900 ₸</strong>
+            </div>
+
+            <button class="add-btn" type="button">+</button>
+          </article>
+
+
+          <article class="product-card" data-name="Круассан" data-price="1200">
+            <div class="product-image">🥐</div>
+
+            <div class="product-info">
+              <h2>Круассан</h2>
+              <strong>1200 ₸</strong>
+            </div>
+
+            <button class="add-btn" type="button">+</button>
+          </article>
+
+
+          <article class="product-card" data-name="Маффин" data-price="1000">
+            <div class="product-image">🧁</div>
+
+            <div class="product-info">
+              <h2>Маффин</h2>
+              <strong>1000 ₸</strong>
+            </div>
+
+            <button class="add-btn" type="button">+</button>
+          </article>
+
+        </div>
+
+      </div>
+
+
+      <!-- ======================================== -->
+      <!-- ЕДА -->
+      <!-- ======================================== -->
+
+      <div class="category-content" data-category="Еда">
+
+        <h1>Еда</h1>
+
+        <div class="product-grid">
+
+          <article class="product-card" data-name="Клаб-сэндвич" data-price="2500">
+            <div class="product-image">🥪</div>
+
+            <div class="product-info">
+              <h2>Клаб-сэндвич</h2>
+              <strong>2500 ₸</strong>
+            </div>
+
+            <button class="add-btn" type="button">+</button>
+          </article>
+
+
+          <article class="product-card" data-name="Бургер" data-price="2800">
+            <div class="product-image">🍔</div>
+
+            <div class="product-info">
+              <h2>Бургер</h2>
+              <strong>2800 ₸</strong>
+            </div>
+
+            <button class="add-btn" type="button">+</button>
+          </article>
+
+
+          <article class="product-card" data-name="Картофель фри" data-price="1200">
+            <div class="product-image">🍟</div>
+
+            <div class="product-info">
+              <h2>Картофель фри</h2>
+              <strong>1200 ₸</strong>
+            </div>
+
+            <button class="add-btn" type="button">+</button>
+          </article>
+
+
+          <article class="product-card" data-name="Паста Карбонара" data-price="2700">
+            <div class="product-image">🍝</div>
+
+            <div class="product-info">
+              <h2>Паста Карбонара</h2>
+              <strong>2700 ₸</strong>
+            </div>
+
+            <button class="add-btn" type="button">+</button>
+          </article>
+
+
+          <article class="product-card" data-name="Салат Цезарь" data-price="2400">
+            <div class="product-image">🥗</div>
+
+            <div class="product-info">
+              <h2>Салат Цезарь</h2>
+              <strong>2400 ₸</strong>
+            </div>
+
+            <button class="add-btn" type="button">+</button>
+          </article>
+
+
+          <article class="product-card" data-name="Пицца Маргарита" data-price="3000">
+            <div class="product-image">🍕</div>
+
+            <div class="product-info">
+              <h2>Пицца Маргарита</h2>
+              <strong>3000 ₸</strong>
+            </div>
+
+            <button class="add-btn" type="button">+</button>
+          </article>
+
+        </div>
+
+      </div>
+
+
+      <!-- ======================================== -->
+      <!-- ЗАВТРАКИ -->
+      <!-- ======================================== -->
+
+      <div class="category-content" data-category="Завтраки">
+
+        <h1>Завтраки</h1>
+
+        <div class="product-grid">
+
+          <article class="product-card" data-name="Яичница" data-price="1800">
+            <div class="product-image">🍳</div>
+
+            <div class="product-info">
+              <h2>Яичница</h2>
+              <strong>1800 ₸</strong>
+            </div>
+
+            <button class="add-btn" type="button">+</button>
+          </article>
+
+
+          <article class="product-card" data-name="Омлет" data-price="1900">
+            <div class="product-image">🍳</div>
+
+            <div class="product-info">
+              <h2>Омлет</h2>
+              <strong>1900 ₸</strong>
+            </div>
+
+            <button class="add-btn" type="button">+</button>
+          </article>
+
+
+          <article class="product-card" data-name="Сырники" data-price="2000">
+            <div class="product-image">🥞</div>
+
+            <div class="product-info">
+              <h2>Сырники</h2>
+              <strong>2000 ₸</strong>
+            </div>
+
+            <button class="add-btn" type="button">+</button>
+          </article>
+
+
+          <article class="product-card" data-name="Каша овсяная" data-price="1400">
+            <div class="product-image">🥣</div>
+
+            <div class="product-info">
+              <h2>Каша овсяная</h2>
+              <strong>1400 ₸</strong>
+            </div>
+
+            <button class="add-btn" type="button">+</button>
+          </article>
+
+
+          <article class="product-card" data-name="Авокадо-тост" data-price="2200">
+            <div class="product-image">🥑</div>
+
+            <div class="product-info">
+              <h2>Авокадо-тост</h2>
+              <strong>2200 ₸</strong>
+            </div>
+
+            <button class="add-btn" type="button">+</button>
+          </article>
+
+
+          <article class="product-card" data-name="Блины" data-price="1600">
+            <div class="product-image">🥞</div>
+
+            <div class="product-info">
+              <h2>Блины</h2>
+              <strong>1600 ₸</strong>
+            </div>
+
+            <button class="add-btn" type="button">+</button>
+          </article>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ======================================== -->
+    <!-- ВАШ ЗАКАЗ -->
+    <!-- ======================================== -->
+
+    <aside class="order">
+
+      <div class="order-head">
+
+        <h2>Ваш заказ</h2>
+
+        <span class="order-count" id="orderCount">
+          0
+        </span>
+
+      </div>
+
+
+      <div class="order-items" id="orderItems">
+
+        <p class="empty-order">
+          Ваш заказ пока пуст
+        </p>
+
+      </div>
+
+
+      <div class="order-total">
+
+        <span>
+          Итого:
+        </span>
+
+        <strong id="orderTotal">
+          0 ₸
+        </strong>
+
+      </div>
+
+
+      <button class="checkout" type="button">
+        Оформить заказ
+      </button>
+
+
+      <button class="cart-button" type="button">
+
+        <span>🛒</span>
+
+        <span class="cart-text">
+          Корзина
+        </span>
+
+        <b id="cartCount">
+          0
+        </b>
+
+      </button>
+
+    </aside>
+
+  </section>
+
+
+  <!-- ======================================== -->
+  <!-- ОКНО ПОДТВЕРЖДЕНИЯ ЗАКАЗА -->
+  <!-- ======================================== -->
+
+  <div
+    class="order-success-overlay"
+    id="orderSuccessOverlay"
+  >
+
+    <div class="order-success">
+
+      <div class="success-icon">
+        ✓
+      </div>
+
+      <h2 id="successTitle">
+        Спасибо за ваш заказ!
+      </h2>
+
+      <p id="successMessage">
+        Ваш заказ успешно отправлен.
+      </p>
+
+      <div class="success-table">
+
+        <span id="successTableLabel">
+          Столик
+        </span>
+
+        <strong id="successTable">
+          №2
+        </strong>
+
+      </div>
+
+
+      <div class="success-status">
+
+        <span class="status-dot"></span>
+
+        <div>
+
+          <small id="successStatusLabel">
+            Статус заказа
+          </small>
+
+          <strong id="successStatus">
+            Ожидает подтверждения
+          </strong>
+
+        </div>
+
+      </div>
+
+
+      <button
+        class="success-close"
+        id="successClose"
+        type="button"
+      >
+        Хорошо
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <!-- ======================================== -->
+  <!-- НИЖНЯЯ ПАНЕЛЬ -->
+  <!-- ======================================== -->
+
+  <footer class="bottom-bar">
+
+    <button
+      class="language"
+      id="languageButton"
+      type="button"
+      aria-label="Change language"
+    >
+
+      <span id="languageFlag">🇷🇺</span>
+
+      <span id="languageCode">
+        RU
+      </span>
+
+    </button>
+
+
+    <button class="waiter" type="button">
+
+      ♧ &nbsp;
+
+      <span id="waiterText">
+        Вызвать официанта
+      </span>
+
+    </button>
+
+  </footer>
+
+</main>
+
+
+<!-- ======================================== -->
+<!-- JAVASCRIPT -->
+<!-- ======================================== -->
+
+<script>
+
+
+// ========================================
+// ЭЛЕМЕНТЫ
+// ========================================
+
+const orderItems =
+  document.getElementById('orderItems');
+
+const orderTotal =
+  document.getElementById('orderTotal');
+
+const orderCount =
+  document.getElementById('orderCount');
+
+const cartCount =
+  document.getElementById('cartCount');
+
+const languageButton =
+  document.getElementById('languageButton');
+
+const languageFlag =
+  document.getElementById('languageFlag');
+
+const languageCode =
+  document.getElementById('languageCode');
+
+const checkoutButton =
+  document.querySelector('.checkout');
+
+
+// ========================================
+// ЭЛЕМЕНТЫ ОКНА ЗАКАЗА
+// ========================================
+
+const orderSuccessOverlay =
+  document.getElementById('orderSuccessOverlay');
+
+const successClose =
+  document.getElementById('successClose');
+
+const successTable =
+  document.getElementById('successTable');
+
+const successStatus =
+  document.getElementById('successStatus');
+
+const successTitle =
+  document.getElementById('successTitle');
+
+const successMessage =
+  document.getElementById('successMessage');
+
+const successTableLabel =
+  document.getElementById('successTableLabel');
+
+const successStatusLabel =
+  document.getElementById('successStatusLabel');
+
+
+const categoryButtons =
+  document.querySelectorAll('.category');
+
+const categoryContents =
+  document.querySelectorAll('.category-content');
+
+
+// ========================================
+// ТЕКУЩИЙ ЯЗЫК
+// ========================================
+
+let currentLanguage = 'ru';
+
+
+// ========================================
+// ПЕРЕВОДЫ
+// ========================================
+
+const translations = {
+
+  ru: {
+
+    table: 'Столик №2',
+
+    categories: {
+      'Кофе': 'Кофе',
+      'Напитки': 'Напитки',
+      'Десерты': 'Десерты',
+      'Еда': 'Еда',
+      'Завтраки': 'Завтраки'
+    },
+
+    order: 'Ваш заказ',
+
+    empty: 'Ваш заказ пока пуст',
+
+    total: 'Итого:',
+
+    checkout: 'Оформить заказ',
+
+    cart: 'Корзина',
+
+    waiter: 'Вызвать официанта',
+
+    successTitle: 'Спасибо за ваш заказ!',
+
+    successMessage: 'Ваш заказ успешно отправлен.',
+
+    tableLabel: 'Столик',
+
+    statusLabel: 'Статус заказа',
+
+    status: 'Ожидает подтверждения',
+
+    close: 'Хорошо',
+
+    emptyCheckout:
+      'Сначала добавьте товары в заказ.'
+
+  },
+
+
+  en: {
+
+    table: 'Table №2',
+
+    categories: {
+      'Кофе': 'Coffee',
+      'Напитки': 'Drinks',
+      'Десерты': 'Desserts',
+      'Еда': 'Food',
+      'Завтраки': 'Breakfast'
+    },
+
+    order: 'Your order',
+
+    empty: 'Your order is empty',
+
+    total: 'Total:',
+
+    checkout: 'Place order',
+
+    cart: 'Cart',
+
+    waiter: 'Call waiter',
+
+    successTitle: 'Thank you for your order!',
+
+    successMessage: 'Your order has been sent successfully.',
+
+    tableLabel: 'Table',
+
+    statusLabel: 'Order status',
+
+    status: 'Waiting for confirmation',
+
+    close: 'OK',
+
+    emptyCheckout:
+      'Please add items to your order first.'
+
+  }
+
+};
+
+
+// ========================================
+// ПЕРЕВОД ТОВАРОВ
+// ========================================
+
+const productTranslations = {
+
+  'Эспрессо': 'Espresso',
+  'Американо': 'Americano',
+  'Капучино': 'Cappuccino',
+  'Латте': 'Latte',
+  'Раф': 'Raf',
+  'Флэт Уайт': 'Flat White',
+
+  'Кола': 'Cola',
+  'Спрайт': 'Sprite',
+  'Фанта': 'Fanta',
+  'Лимонад': 'Lemonade',
+  'Апельсиновый сок': 'Orange Juice',
+  'Яблочный сок': 'Apple Juice',
+  'Минеральная вода': 'Mineral Water',
+  'Холодный чай': 'Iced Tea',
+
+  'Чизкейк': 'Cheesecake',
+  'Тирамису': 'Tiramisu',
+  'Шоколадный торт': 'Chocolate Cake',
+  'Морковный торт': 'Carrot Cake',
+  'Круассан': 'Croissant',
+  'Маффин': 'Muffin',
+
+  'Клаб-сэндвич': 'Club Sandwich',
+  'Бургер': 'Burger',
+  'Картофель фри': 'French Fries',
+  'Паста Карбонара': 'Carbonara Pasta',
+  'Салат Цезарь': 'Caesar Salad',
+  'Пицца Маргарита': 'Margherita Pizza',
+
+  'Яичница': 'Fried Eggs',
+  'Омлет': 'Omelette',
+  'Сырники': 'Syrniki',
+  'Каша овсяная': 'Oatmeal',
+  'Авокадо-тост': 'Avocado Toast',
+  'Блины': 'Pancakes'
+
+};
+
+
+// ========================================
+// ПЕРЕКЛЮЧЕНИЕ КАТЕГОРИЙ
+// ========================================
+
+categoryButtons.forEach(button => {
+
+  button.addEventListener('click', () => {
+
+    categoryButtons.forEach(btn => {
+      btn.classList.remove('active');
+    });
+
+    button.classList.add('active');
+
+
+    const categoryName =
+      button.dataset.category;
+
+
+    categoryContents.forEach(content => {
+
+      if (
+        content.dataset.category === categoryName
+      ) {
+
+        content.classList.add('active');
+
+      } else {
+
+        content.classList.remove('active');
+
+      }
+
+    });
+
+  });
+
+});
+
+
+// ========================================
+// ДОБАВЛЕНИЕ ТОВАРОВ
+// ========================================
+
+document.querySelectorAll('.add-btn').forEach(button => {
+
+  button.addEventListener('click', () => {
+
+
+    // ========================================
+    // АНИМАЦИЯ КНОПКИ
+    // ========================================
+
+    button.classList.add('added');
+
+    button.textContent = '✓';
+
+
+    setTimeout(() => {
+
+      button.classList.remove('added');
+
+      button.textContent = '+';
+
+    }, 700);
+
+
+    // ========================================
+    // КАРТОЧКА ТОВАРА
+    // ========================================
+
+    const productCard =
+      button.closest('.product-card');
+
+
+    const name =
+      productCard.dataset.name;
+
+    const price =
+      Number(productCard.dataset.price);
+
+
+    // ========================================
+    // ИЩЕМ ТОВАР В ЗАКАЗЕ
+    // ========================================
+
+    const existingItem =
+      [...orderItems.querySelectorAll('.order-item')]
+        .find(item =>
+          item.dataset.name === name
+        );
+
+
+    // ========================================
+    // ТОВАР УЖЕ ЕСТЬ
+    // ========================================
+
+    if (existingItem) {
+
+      let quantity =
+        Number(existingItem.dataset.quantity);
+
+      quantity++;
+
+
+      existingItem.dataset.quantity =
+        quantity;
+
+
+      updateOrderItem(existingItem);
+
+    }
+
+
+    // ========================================
+    // НОВЫЙ ТОВАР
+    // ========================================
+
+    else {
+
+      const emptyOrder =
+        orderItems.querySelector('.empty-order');
+
+
+      if (emptyOrder) {
+        emptyOrder.remove();
+      }
+
+
+      const orderItem =
+        document.createElement('div');
+
+
+      orderItem.className =
+        'order-item';
+
+
+      orderItem.dataset.name =
+        name;
+
+      orderItem.dataset.price =
+        price;
+
+      orderItem.dataset.quantity =
+        1;
+
+
+      const translatedName =
+        getProductName(name);
+
+
+      orderItem.innerHTML = `
+
+        <div class="order-item-info">
+
+          <strong>
+            ${translatedName}
+          </strong>
+
+          <span class="item-description">
+            1 × ${price} ₸
+          </span>
+
+        </div>
+
+
+        <div class="order-item-controls">
+
+          <button
+            class="quantity-btn minus"
+            type="button"
+          >
+            −
+          </button>
+
+
+          <span class="quantity">
+            1
+          </span>
+
+
+          <button
+            class="quantity-btn plus"
+            type="button"
+          >
+            +
+          </button>
+
+
+          <strong class="item-total">
+            ${price} ₸
+          </strong>
+
+
+          <button
+            class="remove-item"
+            type="button"
+          >
+            🗑
+          </button>
+
+        </div>
+
+      `;
+
+
+      orderItems.appendChild(orderItem);
+
+
+      // ========================================
+      // КНОПКА +
+      // ========================================
+
+      orderItem
+        .querySelector('.plus')
+        .addEventListener('click', () => {
+
+          let quantity =
+            Number(orderItem.dataset.quantity);
+
+
+          quantity++;
+
+
+          orderItem.dataset.quantity =
+            quantity;
+
+
+          updateOrderItem(orderItem);
+
+        });
+
+
+      // ========================================
+      // КНОПКА -
+      // ========================================
+
+      orderItem
+        .querySelector('.minus')
+        .addEventListener('click', () => {
+
+          let quantity =
+            Number(orderItem.dataset.quantity);
+
+
+          quantity--;
+
+
+          if (quantity <= 0) {
+
+            orderItem.remove();
+
+            checkEmptyOrder();
+
+          } else {
+
+            orderItem.dataset.quantity =
+              quantity;
+
+            updateOrderItem(orderItem);
+
+          }
+
+        });
+
+
+      // ========================================
+      // УДАЛЕНИЕ
+      // ========================================
+
+      orderItem
+        .querySelector('.remove-item')
+        .addEventListener('click', () => {
+
+          orderItem.remove();
+
+          checkEmptyOrder();
+
+        });
+
+    }
+
+
+    updateTotal();
+
+  });
+
+});
+
+
+// ========================================
+// ПОЛУЧИТЬ НАЗВАНИЕ ТОВАРА
+// ========================================
+
+function getProductName(russianName) {
+
+  if (currentLanguage === 'ru') {
+
+    return russianName;
+
+  }
+
+
+  return productTranslations[russianName]
+    || russianName;
+
+}
+
+
+// ========================================
+// ОБНОВЛЕНИЕ ТОВАРА
+// ========================================
+
+function updateOrderItem(item) {
+
+  const price =
+    Number(item.dataset.price);
+
+  const quantity =
+    Number(item.dataset.quantity);
+
+
+  const russianName =
+    item.dataset.name;
+
+
+  const title =
+    item.querySelector(
+      '.order-item-info strong'
+    );
+
+
+  title.textContent =
+    getProductName(russianName);
+
+
+  item.querySelector('.quantity').textContent =
+    quantity;
+
+
+  item.querySelector('.item-description').textContent =
+    `${quantity} × ${price} ₸`;
+
+
+  item.querySelector('.item-total').textContent =
+    `${quantity * price} ₸`;
+
+
+  updateTotal();
+
+}
+
+
+// ========================================
+// ОБНОВЛЕНИЕ ИТОГА
+// ========================================
+
+function updateTotal() {
+
+  let total = 0;
+
+  let count = 0;
+
+
+  document
+    .querySelectorAll('.order-item')
+    .forEach(item => {
+
+      const price =
+        Number(item.dataset.price);
+
+      const quantity =
+        Number(item.dataset.quantity);
+
+
+      total += price * quantity;
+
+      count += quantity;
+
+    });
+
+
+  orderTotal.textContent =
+    `${total} ₸`;
+
+
+  orderCount.textContent =
+    count;
+
+
+  cartCount.textContent =
+    count;
+
+}
+
+
+// ========================================
+// ПРОВЕРКА ПУСТОГО ЗАКАЗА
+// ========================================
+
+function checkEmptyOrder() {
+
+  const items =
+    orderItems.querySelectorAll('.order-item');
+
+
+  if (items.length === 0) {
+
+    orderItems.innerHTML = `
+
+      <p class="empty-order">
+        ${translations[currentLanguage].empty}
+      </p>
+
+    `;
+
+  }
+
+
+  updateTotal();
+
+}
+
+
+// ========================================
+// ПЕРЕКЛЮЧЕНИЕ ЯЗЫКА
+// ========================================
+
+languageButton.addEventListener('click', () => {
+
+  if (currentLanguage === 'ru') {
+
+    currentLanguage = 'en';
+
+  } else {
+
+    currentLanguage = 'ru';
+
+  }
+
+
+  updateLanguage();
+
+});
+
+
+// ========================================
+// ОБНОВЛЕНИЕ ЯЗЫКА
+// ========================================
+
+function updateLanguage() {
+
+  const lang =
+    translations[currentLanguage];
+
+
+  // ========================================
+  // ЯЗЫК
+  // ========================================
+
+  if (currentLanguage === 'ru') {
+
+    languageFlag.textContent = '🇷🇺';
+
+    languageCode.textContent = 'RU';
+
+  } else {
+
+    languageFlag.textContent = '🇬🇧';
+
+    languageCode.textContent = 'EN';
+
+  }
+
+
+  // ========================================
+  // СТОЛИК
+  // ========================================
+
+  document
+    .getElementById('tableBadge')
+    .textContent = lang.table;
+
+
+  // ========================================
+  // КАТЕГОРИИ
+  // ========================================
+
+  document
+    .querySelectorAll('.category')
+    .forEach(button => {
+
+      const category =
+        button.dataset.category;
+
+
+      const text =
+        button.querySelector('.category-text');
+
+
+      text.textContent =
+        lang.categories[category];
+
+    });
+
+
+  // ========================================
+  // ЗАГОЛОВКИ КАТЕГОРИЙ
+  // ========================================
+
+  document
+    .querySelectorAll('.category-content')
+    .forEach(content => {
+
+      const category =
+        content.dataset.category;
+
+
+      const title =
+        content.querySelector('h1');
+
+
+      if (title) {
+
+        title.textContent =
+          lang.categories[category];
+
+      }
+
+    });
+
+
+  // ========================================
+  // ВАШ ЗАКАЗ
+  // ========================================
+
+  document
+    .querySelector('.order-head h2')
+    .textContent =
+    lang.order;
+
+
+  // ========================================
+  // ИТОГО
+  // ========================================
+
+  document
+    .querySelector('.order-total span')
+    .textContent =
+    lang.total;
+
+
+  // ========================================
+  // ОФОРМИТЬ ЗАКАЗ
+  // ========================================
+
+  checkoutButton.textContent =
+    lang.checkout;
+
+
+  // ========================================
+  // КОРЗИНА
+  // ========================================
+
+  document
+    .querySelector('.cart-text')
+    .textContent =
+    lang.cart;
+
+
+  // ========================================
+  // ВЫЗВАТЬ ОФИЦИАНТА
+  // ========================================
+
+  document
+    .getElementById('waiterText')
+    .textContent =
+    lang.waiter;
+
+
+  // ========================================
+  // ТОВАРЫ
+  // ========================================
+
+  document
+    .querySelectorAll('.product-card')
+    .forEach(card => {
+
+      const russianName =
+        card.dataset.name;
+
+
+      const title =
+        card.querySelector(
+          '.product-info h2'
+        );
+
+
+      if (!title) return;
+
+
+      title.textContent =
+        getProductName(russianName);
+
+    });
+
+
+  // ========================================
+  // ТОВАРЫ В ЗАКАЗЕ
+  // ========================================
+
+  document
+    .querySelectorAll('.order-item')
+    .forEach(item => {
+
+      const russianName =
+        item.dataset.name;
+
+
+      const title =
+        item.querySelector(
+          '.order-item-info strong'
+        );
+
+
+      if (!title) return;
+
+
+      title.textContent =
+        getProductName(russianName);
+
+    });
+
+
+  // ========================================
+  // ПУСТОЙ ЗАКАЗ
+  // ========================================
+
+  const emptyOrder =
+    document.querySelector('.empty-order');
+
+
+  if (emptyOrder) {
+
+    emptyOrder.textContent =
+      lang.empty;
+
+  }
+
+
+  // ========================================
+  // ОКНО УСПЕШНОГО ЗАКАЗА
+  // ========================================
+
+  successTitle.textContent =
+    lang.successTitle;
+
+  successMessage.textContent =
+    lang.successMessage;
+
+  successTableLabel.textContent =
+    lang.tableLabel;
+
+  successStatusLabel.textContent =
+    lang.statusLabel;
+
+  successStatus.textContent =
+    lang.status;
+
+  successClose.textContent =
+    lang.close;
+
+}
+
+
+// ========================================
+// ОФОРМЛЕНИЕ ЗАКАЗА
+// ========================================
+
+checkoutButton.addEventListener('click', () => {
+  const items = orderItems.querySelectorAll('.order-item');
+
+  if (items.length === 0) {
+    alert(translations[currentLanguage].emptyCheckout);
+    return;
+  }
+
+  const payloadItems = [];
+  items.forEach(item => {
+    payloadItems.push({
+      name: item.dataset.name,
+      qty: Number(item.dataset.quantity),
+      price: Number(item.dataset.price)
+    });
+  });
+
+  const tableBadgeEl = document.getElementById('tableBadge');
+  const tableNum = tableBadgeEl ? (Number(tableBadgeEl.textContent.replace(/[^0-9]/g, '')) || 2) : 2;
+
+  // Send order to backend
+  fetch('/v1/orders', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      table: tableNum,
+      items: payloadItems,
+      comment: ''
+    })
+  })
+  .then(res => res.json())
+  .then(res => {
+    const orderData = res.data;
+    successTable.textContent = '№' + orderData.table;
+    successStatus.textContent = 'Заказ №' + orderData.number + ' отправлен на кухню';
+    
+    // Clear cart
+    orderItems.innerHTML = '';
+    checkEmptyOrder();
+    updateTotal();
+    
+    // Save active order ID
+    localStorage.setItem('active_order_id', orderData.id);
+    
+    // Add tracking button to overlay
+    const modal = orderSuccessOverlay.querySelector('.order-success-modal');
+    if (modal) {
+      const viewStatusBtnId = 'viewStatusBtn';
+      let link = document.getElementById(viewStatusBtnId);
+      if (!link) {
+        link = document.createElement('a');
+        link.id = viewStatusBtnId;
+        link.className = 'btn';
+        link.style.display = 'block';
+        link.style.textAlign = 'center';
+        link.style.marginTop = '15px';
+        link.style.background = '#4a2b16';
+        link.style.color = 'white';
+        link.style.padding = '12px';
+        link.style.borderRadius = '10px';
+        link.style.textDecoration = 'none';
+        link.style.fontWeight = 'bold';
+        modal.appendChild(link);
+      }
+      link.href = 'visitor-display.html?orderId=' + orderData.id;
+      link.textContent = '🔍 Отслеживать готовность заказа';
+    }
+
+    orderSuccessOverlay.classList.add('active');
+  })
+  .catch(err => {
+    console.error('Error placing order:', err);
+    alert('Ошибка при оформлении заказа. Попробуйте еще раз.');
+  });
+});
+
+
+// ========================================
+// ЗАКРЫТИЕ ОКНА
+// ========================================
+
+successClose.addEventListener('click', () => {
+
+  orderSuccessOverlay.classList.remove('active');
+
+});
+
+
+// ========================================
+// ЗАПУСК
+// ========================================
+
+updateLanguage();
+
+</script>
+
+</body>
+</html>
