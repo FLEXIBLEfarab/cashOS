@@ -4,6 +4,8 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
+import * as express from 'express';
+import { join } from 'path';
 
 async function bootstrap(): Promise<void> {
   const logger = new Logger('Bootstrap');
@@ -12,6 +14,9 @@ async function bootstrap(): Promise<void> {
     logger: ['log', 'error', 'warn', 'debug'],
     bufferLogs: true,
   });
+
+  // Serve static frontend files
+  app.use(express.static(join(__dirname, '..', '..', 'frontend')));
 
   // ─── Global prefix ─────────────────────────────────────────────────────────
   app.setGlobalPrefix('v1');

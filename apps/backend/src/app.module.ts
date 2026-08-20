@@ -8,6 +8,7 @@ import { PosModule } from './modules/pos/pos.module';
 import { MarketplaceModule } from './modules/marketplace/marketplace.module';
 import { ErpIntegrationModule } from './modules/erp-integration/erp-integration.module';
 import { ProductsModule } from './modules/products/products.module';
+import { OrdersModule } from './modules/orders/orders.module';
 
 // ─── Инфраструктурные модули ──────────────────────────────────────────────────
 import { RabbitMqModule } from './infrastructure/rabbitmq/rabbitmq.module';
@@ -57,6 +58,7 @@ import { WebsocketModule } from './infrastructure/websocket/websocket.module';
     MarketplaceModule,
     ErpIntegrationModule,
     ProductsModule,   // Модуль товаров (Developer 2): Product, Category, Brand, Unit, Tax, Barcode, Price, StockInfo
+    OrdersModule,     // Модуль заказов для нового HTML фронтенда
   ],
 })
 export class AppModule {}
