@@ -158,6 +158,26 @@ a {
   font-size: 15px;
 }
 
+.nav-item-kitchen {
+  margin-top: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  text-decoration: none;
+  color: #e5d7c7;
+}
+
+.nav-item-kitchen:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.nav-ext-arrow {
+  margin-left: auto;
+  font-size: 13px;
+  opacity: 0.6;
+}
+
 .nav-item:hover {
   background: var(--sidebar-hover);
   color: #f4e9db;
@@ -271,6 +291,53 @@ a {
 .home-clock strong {
   font-size: 28px;
   font-weight: 700;
+}
+
+.home-header-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.screen-switch-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background: #432817;
+  color: #fff;
+  border: 1px solid #432817;
+  border-radius: 10px;
+  font-family: "Manrope", sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(67, 40, 23, 0.15);
+}
+
+.screen-switch-btn:hover {
+  background: #5a3620;
+  border-color: #5a3620;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(67, 40, 23, 0.24);
+  color: #fff;
+}
+
+.screen-switch-btn:active {
+  transform: translateY(0);
+}
+
+.screen-switch-arrow {
+  font-size: 15px;
+  line-height: 1;
+  transition: transform 0.2s ease;
+}
+
+.screen-switch-btn:hover .screen-switch-arrow {
+  transform: translateX(3px);
 }
 
 

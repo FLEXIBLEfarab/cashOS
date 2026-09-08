@@ -181,6 +181,12 @@ body.app-view-notifications .notifications-view,body.app-view-settings .settings
         <span>Настройки</span>
       </a>
 
+      <a href="kitchen.html" class="nav-item nav-item-kitchen" title="Перейти на экран кухни">
+        <span class="nav-icon">🍳</span>
+        <span>Экран кухни</span>
+        <span class="nav-ext-arrow">↗</span>
+      </a>
+
     </nav>
 
     <a href="#" class="nav-item logout">
@@ -216,16 +222,20 @@ body.app-view-notifications .notifications-view,body.app-view-settings .settings
       </div>
 
 
-      <div class="home-clock">
+      <div class="home-header-right">
+        <div class="home-clock">
+          <span>
+            Сейчас
+          </span>
+          <strong id="homeTime">
+            00:00
+          </strong>
+        </div>
 
-        <span>
-          Сейчас
-        </span>
-
-        <strong id="homeTime">
-          00:00
-        </strong>
-
+        <a href="kitchen.html" class="screen-switch-btn" title="Перейти на экран кухни">
+          <span>Экран кухни</span>
+          <span class="screen-switch-arrow">→</span>
+        </a>
       </div>
 
     </header>
