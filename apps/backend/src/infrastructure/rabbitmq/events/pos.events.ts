@@ -59,9 +59,28 @@ export interface SyncRequestedPayload {
   requestedAt: string;
 }
 
+export interface OrderCreatedPayload {
+  orderId: string;
+  number: number;
+  table: string;
+  total: number;
+  itemsCount: number;
+  createdAt: string;
+}
+
+export interface OrderStatusChangedPayload {
+  orderId: string;
+  number: number;
+  table: string;
+  status: string;
+}
+
 export type RabbitMqPayload =
   | SaleCreatedPayload
   | StockUpdatedPayload
   | ShiftClosedPayload
   | RefundCreatedPayload
-  | SyncRequestedPayload;
+  | SyncRequestedPayload
+  | OrderCreatedPayload
+  | OrderStatusChangedPayload
+  | Record<string, any>;

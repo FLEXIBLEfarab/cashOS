@@ -23,6 +23,10 @@ import {
 } from './dto/pos-response.dto';
 import { OfdService } from './services/ofd.service';
 import { RabbitMqProducerService } from '../../infrastructure/rabbitmq/rabbitmq.service';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { ShiftEntity, ShiftStatus } from './entities/shift.entity';
+import { SaleEntity } from './entities/sale.entity';
 
 // ─── Internal State (in-memory) ───────────────────────────────────────────────
 
@@ -93,6 +97,10 @@ export class PosService {
   constructor(
     private readonly ofdService: OfdService,
     private readonly rabbitMqProducer: RabbitMqProducerService,
+    @InjectRepository(ShiftEntity)
+    private readonly shiftRepo: Repository<ShiftEntity>,
+    @InjectRepository(SaleEntity)
+    private readonly saleRepo: Repository<SaleEntity>,
   ) {}
 
   // ─── Смены (Shifts) ──────────────────────────────────────────────────────────
@@ -104,9 +112,18 @@ export class PosService {
     dto: OpenShiftDto,
     cashierId: string,
   ): Promise<ShiftResponseDto> {
-    const existingOpen = Array.from(this.shiftStates.values()).find(
+    let existingOpen = Array.from(this.shiftStates.values()).find(
       (s) => s.terminalId === dto.terminalId && s.status === 'open',
     );
+
+    if (!existingOpen) {
+      const openEntity = await this.shiftRepo.findOne({
+        where: { terminalId: dto.terminalId, status: ShiftStatus.OPEN },
+      });
+      if (openEntity) {
+        existingOpen = await this.getShiftStateOrThrow(openEntity.id);
+      }
+    }
 
     if (existingOpen) {
       throw new BadRequestException(
@@ -139,6 +156,7 @@ export class PosService {
     };
 
     this.shiftStates.set(state.shiftId, state);
+    await this.persistShiftState(state);
 
     this.logger.log(
       `📂 Смена открыта: shiftId=${state.shiftId}, terminal=${dto.terminalId}, кассир=${cashierId}`,
@@ -155,7 +173,7 @@ export class PosService {
     dto: CloseShiftDto,
     cashierId: string,
   ): Promise<CloseShiftResponseDto> {
-    const state = this.getShiftStateOrThrow(dto.shiftId);
+    const state = await this.getShiftStateOrThrow(dto.shiftId);
 
     if (state.status === 'closed') {
       throw new BadRequestException(`Смена ${dto.shiftId} уже закрыта`);
@@ -176,6 +194,8 @@ export class PosService {
       closingCash: dto.closingCash,
       note: dto.note ?? state.note,
     });
+
+    await this.persistShiftState(state);
 
     // Публикуем событие в RabbitMQ
     await this.rabbitMqProducer.publish('shift.closed', {
@@ -207,7 +227,7 @@ export class PosService {
    * Сформировать X-отчёт (без закрытия) или Z-отчёт (для закрытой смены).
    */
   async getShiftReport(shiftId: string): Promise<ShiftReportDto> {
-    const state = this.getShiftStateOrThrow(shiftId);
+    const state = await this.getShiftStateOrThrow(shiftId);
 
     const reportType: 'X' | 'Z' = state.status === 'open' ? 'X' : 'Z';
 
@@ -269,7 +289,7 @@ export class PosService {
     dto: CashInDto,
     cashierId: string,
   ): Promise<CashInOutResponseDto> {
-    const state = this.getOpenShiftStateOrThrow(shiftId);
+    const state = await this.getOpenShiftStateOrThrow(shiftId);
 
     const operation: CashInOutResponseDto = {
       operationId: uuidv4(),
@@ -283,6 +303,7 @@ export class PosService {
 
     state.cashInTotal += dto.amount;
     state.cashInOutOperations.push(operation);
+    await this.persistShiftState(state);
 
     this.logger.log(
       `💵 Cash-In: ${dto.amount} ₸ в смену ${shiftId}. Причина: ${dto.reason}`,
@@ -299,7 +320,7 @@ export class PosService {
     dto: CashOutDto,
     cashierId: string,
   ): Promise<CashInOutResponseDto> {
-    const state = this.getOpenShiftStateOrThrow(shiftId);
+    const state = await this.getOpenShiftStateOrThrow(shiftId);
 
     const currentCash =
       state.openingCash + state.cashInTotal - state.cashOutTotal + state.cashTotal;
@@ -322,6 +343,7 @@ export class PosService {
 
     state.cashOutTotal += dto.amount;
     state.cashInOutOperations.push(operation);
+    await this.persistShiftState(state);
 
     this.logger.log(
       `🏦 Cash-Out (инкассация): ${dto.amount} ₸ из смены ${shiftId}. Причина: ${dto.reason}`,
@@ -339,7 +361,7 @@ export class PosService {
     dto: CreateSaleDto,
     cashierId: string,
   ): Promise<SaleResponseDto> {
-    const state = this.getOpenShiftStateOrThrow(dto.shiftId);
+    const state = await this.getOpenShiftStateOrThrow(dto.shiftId);
 
     // Расчёт суммы
     const subtotal = dto.items.reduce((acc, item) => {
@@ -436,6 +458,23 @@ export class PosService {
 
     // Обновляем агрегаты смены
     this.updateShiftSaleTotals(state, dto.paymentMethod, totalAmount, splitPayments);
+    await this.persistShiftState(state);
+
+    try {
+      await this.saleRepo.save({
+        id: sale.saleId,
+        shiftId: sale.shiftId,
+        terminalId: state.terminalId,
+        cashierId,
+        amount: sale.totalAmount,
+        paymentMethod: sale.paymentMethod,
+        items: sale.items,
+        splitPayments: sale.splitPayments,
+        fiscalReceipt: sale.fiscalReceipt,
+      });
+    } catch (err) {
+      this.logger.warn(`Failed to persist sale: ${err.message}`);
+    }
 
     // Публикуем событие в RabbitMQ
     await this.rabbitMqProducer.publish('sale.created', {
@@ -462,12 +501,35 @@ export class PosService {
     dto: RefundSaleDto,
     cashierId: string,
   ): Promise<RefundResponseDto> {
-    const originalSale = this.sales.get(dto.saleId);
+    let originalSale = this.sales.get(dto.saleId);
+    if (!originalSale) {
+      const saleEntity = await this.saleRepo.findOne({ where: { id: dto.saleId } });
+      if (saleEntity) {
+        originalSale = {
+          saleId: saleEntity.id,
+          shiftId: saleEntity.shiftId,
+          cashierId: saleEntity.cashierId,
+          customerId: null,
+          receiptNumber: `RCP-${saleEntity.id.substring(0, 8)}`,
+          items: saleEntity.items || [],
+          subtotal: Number(saleEntity.amount),
+          totalDiscount: 0,
+          totalAmount: Number(saleEntity.amount),
+          paymentMethod: saleEntity.paymentMethod as any,
+          splitPayments: saleEntity.splitPayments || null,
+          cashAmount: null,
+          changeAmount: 0,
+          status: 'completed',
+          fiscalReceipt: saleEntity.fiscalReceipt,
+          createdAt: saleEntity.createdAt ? saleEntity.createdAt.toISOString() : new Date().toISOString(),
+        };
+      }
+    }
     if (!originalSale) {
       throw new NotFoundException(`Продажа saleId=${dto.saleId} не найдена`);
     }
 
-    const state = this.getOpenShiftStateOrThrow(dto.shiftId);
+    const state = await this.getOpenShiftStateOrThrow(dto.shiftId);
 
     let refundAmount: number;
 
@@ -475,7 +537,7 @@ export class PosService {
       refundAmount = originalSale.totalAmount;
     } else {
       refundAmount = dto.items.reduce((acc, refundItem) => {
-        const saleItem = originalSale.items.find(
+        const saleItem = originalSale!.items.find(
           (i) => i.saleItemId === refundItem.saleItemId,
         );
 
@@ -500,7 +562,7 @@ export class PosService {
     // Фискализация возврата
     const fiscalReceipt = await this.ofdService.registerRefundReceipt(
       uuidv4(),
-      originalSale.fiscalReceipt.fiscalReceiptNumber,
+      originalSale.fiscalReceipt?.fiscalReceiptNumber || `FR-${Date.now()}`,
       refundAmount,
     );
 
@@ -520,6 +582,7 @@ export class PosService {
 
     state.refundsCount += 1;
     state.refundsAmount += Math.round(refundAmount);
+    await this.persistShiftState(state);
 
     this.logger.log(
       `↩️ Возврат: refundId=${refund.refundId}, сумма=${refund.refundAmount} ₸, ` +
@@ -531,20 +594,75 @@ export class PosService {
 
   // ─── Private helpers ─────────────────────────────────────────────────────────
 
-  private getShiftStateOrThrow(shiftId: string): ShiftState {
-    const state = this.shiftStates.get(shiftId);
+  private async getShiftStateOrThrow(shiftId: string): Promise<ShiftState> {
+    let state = this.shiftStates.get(shiftId);
     if (!state) {
-      throw new NotFoundException(`Смена shiftId=${shiftId} не найдена`);
+      const entity = await this.shiftRepo.findOne({ where: { id: shiftId } });
+      if (!entity) {
+        throw new NotFoundException(`Смена shiftId=${shiftId} не найдена`);
+      }
+      state = {
+        shiftId: entity.id,
+        terminalId: entity.terminalId,
+        cashierId: entity.cashierId,
+        openedAt: entity.openedAt.toISOString(),
+        closedAt: entity.closedAt ? entity.closedAt.toISOString() : null,
+        status: entity.status as any,
+        openingCash: Number(entity.openingCash) || 0,
+        closingCash: entity.closingCash !== null ? Number(entity.closingCash) : null,
+        note: entity.note,
+        totalSalesCount: Number(entity.totalSalesCount) || 0,
+        totalSalesAmount: Number(entity.totalSalesAmount) || 0,
+        refundsCount: Number(entity.refundsCount) || 0,
+        refundsAmount: Number(entity.refundsAmount) || 0,
+        cashTotal: Number(entity.cashTotal) || 0,
+        cardTotal: Number(entity.cardTotal) || 0,
+        kaspiPayTotal: Number(entity.kaspiPayTotal) || 0,
+        qrTotal: Number(entity.qrTotal) || 0,
+        cashInTotal: Number(entity.cashInTotal) || 0,
+        cashOutTotal: Number(entity.cashOutTotal) || 0,
+        cashInOutOperations: entity.cashInOutOperations || [],
+      };
+      this.shiftStates.set(shiftId, state);
     }
     return state;
   }
 
-  private getOpenShiftStateOrThrow(shiftId: string): ShiftState {
-    const state = this.getShiftStateOrThrow(shiftId);
+  private async getOpenShiftStateOrThrow(shiftId: string): Promise<ShiftState> {
+    const state = await this.getShiftStateOrThrow(shiftId);
     if (state.status === 'closed') {
       throw new BadRequestException(`Смена ${shiftId} закрыта. Операция невозможна.`);
     }
     return state;
+  }
+
+  private async persistShiftState(state: ShiftState): Promise<void> {
+    try {
+      await this.shiftRepo.save({
+        id: state.shiftId,
+        terminalId: state.terminalId,
+        cashierId: state.cashierId,
+        openedAt: new Date(state.openedAt),
+        closedAt: state.closedAt ? new Date(state.closedAt) : null,
+        status: state.status as ShiftStatus,
+        openingCash: state.openingCash,
+        closingCash: state.closingCash,
+        note: state.note,
+        totalSalesCount: state.totalSalesCount,
+        totalSalesAmount: state.totalSalesAmount,
+        refundsCount: state.refundsCount,
+        refundsAmount: state.refundsAmount,
+        cashTotal: state.cashTotal,
+        cardTotal: state.cardTotal,
+        kaspiPayTotal: state.kaspiPayTotal,
+        qrTotal: state.qrTotal,
+        cashInTotal: state.cashInTotal,
+        cashOutTotal: state.cashOutTotal,
+        cashInOutOperations: state.cashInOutOperations,
+      });
+    } catch (err) {
+      this.logger.warn(`Failed to persist shift: ${err.message}`);
+    }
   }
 
   /**

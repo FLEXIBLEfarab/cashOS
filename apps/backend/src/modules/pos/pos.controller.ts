@@ -88,9 +88,9 @@ export class PosController {
   }
 
   // ──────────────────────────────────────────────────────────────────────────
-  //  GET /v1/pos/shifts/:id/report
+  //  GET /v1/pos/shifts/:id/report (also /v1/pos/shift/:id/report)
   // ──────────────────────────────────────────────────────────────────────────
-  @Get('shifts/:id/report')
+  @Get(['shifts/:id/report', 'shift/:id/report'])
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Получить отчёт по смене (X/Z)',
@@ -109,9 +109,9 @@ export class PosController {
   }
 
   // ──────────────────────────────────────────────────────────────────────────
-  //  POST /v1/pos/shifts/:id/cash-in
+  //  POST /v1/pos/shifts/:id/cash-in (also /v1/pos/shift/:id/cash-in)
   // ──────────────────────────────────────────────────────────────────────────
-  @Post('shifts/:id/cash-in')
+  @Post(['shifts/:id/cash-in', 'shift/:id/cash-in'])
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
     summary: 'Внесение наличных в кассу (cash-in)',
@@ -133,9 +133,9 @@ export class PosController {
   }
 
   // ──────────────────────────────────────────────────────────────────────────
-  //  POST /v1/pos/shifts/:id/cash-out
+  //  POST /v1/pos/shifts/:id/cash-out (also /v1/pos/shift/:id/cash-out)
   // ──────────────────────────────────────────────────────────────────────────
-  @Post('shifts/:id/cash-out')
+  @Post(['shifts/:id/cash-out', 'shift/:id/cash-out'])
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
     summary: 'Выемка наличных из кассы (cash-out / инкассация)',
