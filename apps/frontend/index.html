@@ -33,9 +33,11 @@
       <span>Coffee House</span>
     </div>
 
-    <div class="table-badge" id="tableBadge">
-      Столик №2
-    </div>
+    <button class="table-badge" id="tableBadge" type="button" aria-haspopup="dialog" aria-expanded="false" title="Нажмите, чтобы сменить столик">
+      <span class="table-badge-icon">🪑</span>
+      <span id="tableBadgeText">Столик №2</span>
+      <span class="table-badge-arrow">▾</span>
+    </button>
 
   </header>
 
@@ -673,6 +675,35 @@
 
   </div>
 
+  <!-- ======================================== -->
+  <!-- МОДАЛЬНОЕ ОКНО ВЫБОРА СТОЛИКА -->
+  <!-- ======================================== -->
+  <div class="table-modal-overlay" id="tableModalOverlay" role="dialog" aria-modal="true" aria-labelledby="tableModalTitle">
+    <div class="table-modal" id="tableModal">
+      <div class="table-modal-header">
+        <div class="table-modal-title-wrap">
+          <span class="table-modal-icon">🪑</span>
+          <h2 id="tableModalTitle">Выберите столик</h2>
+        </div>
+        <button class="table-modal-close" id="tableModalClose" type="button" aria-label="Закрыть">×</button>
+      </div>
+
+      <p class="table-modal-subtitle" id="tableModalSubtitle">Укажите номер столика для оформления заказа</p>
+
+      <div class="table-grid" id="tableGrid">
+        <!-- Кнопки столиков генерируются динамически -->
+      </div>
+
+      <div class="table-custom-section">
+        <div class="table-custom-label" id="tableCustomLabel">Или введите свой номер / название:</div>
+        <div class="table-custom-row">
+          <input type="text" id="tableCustomInput" class="table-custom-input" placeholder="Например: VIP, 24, Терраса" maxlength="20" />
+          <button type="button" id="tableCustomSubmit" class="table-custom-submit">Выбрать</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
 
   <!-- ======================================== -->
   <!-- НИЖНЯЯ ПАНЕЛЬ -->
@@ -784,6 +815,47 @@ const categoryContents =
 
 
 // ========================================
+// ЭЛЕМЕНТЫ ВЫБОРА СТОЛИКА
+// ========================================
+
+const tableBadge = document.getElementById('tableBadge');
+const tableBadgeText = document.getElementById('tableBadgeText');
+const tableModalOverlay = document.getElementById('tableModalOverlay');
+const tableModal = document.getElementById('tableModal');
+const tableModalClose = document.getElementById('tableModalClose');
+const tableModalTitle = document.getElementById('tableModalTitle');
+const tableModalSubtitle = document.getElementById('tableModalSubtitle');
+const tableGrid = document.getElementById('tableGrid');
+const tableCustomLabel = document.getElementById('tableCustomLabel');
+const tableCustomInput = document.getElementById('tableCustomInput');
+const tableCustomSubmit = document.getElementById('tableCustomSubmit');
+
+// ========================================
+// СОСТОЯНИЕ СТОЛИКА
+// ========================================
+
+let currentTable = (() => {
+  try {
+    const urlParams = new URLSearchParams(window.location.search);
+    const tableParam = urlParams.get('table');
+    if (tableParam && tableParam.trim()) {
+      localStorage.setItem('coffee_house_table', tableParam.trim());
+      return tableParam.trim();
+    }
+  } catch (e) {}
+
+  try {
+    const saved = localStorage.getItem('coffee_house_table');
+    if (saved && saved.trim()) {
+      return saved.trim();
+    }
+  } catch (e) {}
+
+  return '2';
+})();
+
+
+// ========================================
 // ТЕКУЩИЙ ЯЗЫК
 // ========================================
 
@@ -797,8 +869,13 @@ let currentLanguage = 'ru';
 const translations = {
 
   ru: {
-
-    table: 'Столик №2',
+    tablePrefix: 'Столик №',
+    tableModalTitle: 'Выберите столик',
+    tableModalSubtitle: 'Укажите номер столика для оформления заказа',
+    tableCustomLabel: 'Или введите свой номер / название:',
+    tableCustomPlaceholder: 'Например: VIP, 24, Терраса',
+    tableCustomSubmit: 'Выбрать',
+    tableBadgeTitle: 'Нажмите, чтобы сменить столик',
 
     categories: {
       'Кофе': 'Кофе',
@@ -839,8 +916,13 @@ const translations = {
 
 
   en: {
-
-    table: 'Table №2',
+    tablePrefix: 'Table №',
+    tableModalTitle: 'Select a table',
+    tableModalSubtitle: 'Specify table number for your order',
+    tableCustomLabel: 'Or enter custom table / name:',
+    tableCustomPlaceholder: 'e.g. VIP, 24, Terrace',
+    tableCustomSubmit: 'Select',
+    tableBadgeTitle: 'Click to change table',
 
     categories: {
       'Кофе': 'Coffee',
@@ -1407,9 +1489,14 @@ function updateLanguage() {
   // СТОЛИК
   // ========================================
 
-  document
-    .getElementById('tableBadge')
-    .textContent = lang.table;
+  updateTableDisplay();
+
+  if (tableModalTitle) tableModalTitle.textContent = lang.tableModalTitle;
+  if (tableModalSubtitle) tableModalSubtitle.textContent = lang.tableModalSubtitle;
+  if (tableCustomLabel) tableCustomLabel.textContent = lang.tableCustomLabel;
+  if (tableCustomInput) tableCustomInput.placeholder = lang.tableCustomPlaceholder;
+  if (tableCustomSubmit) tableCustomSubmit.textContent = lang.tableCustomSubmit;
+  if (tableBadge) tableBadge.title = lang.tableBadgeTitle;
 
 
   // ========================================
@@ -1604,6 +1691,124 @@ function updateLanguage() {
 
 
 // ========================================
+// УПРАВЛЕНИЕ СТОЛИКАМИ
+// ========================================
+
+function updateTableDisplay() {
+  const lang = translations[currentLanguage] || translations.ru;
+  const prefix = lang.tablePrefix || (currentLanguage === 'ru' ? 'Столик №' : 'Table №');
+  if (tableBadgeText) {
+    tableBadgeText.textContent = `${prefix}${currentTable}`;
+  }
+  if (successTable) {
+    successTable.textContent = `№${currentTable}`;
+  }
+  document.querySelectorAll('.table-btn').forEach(btn => {
+    btn.classList.toggle('active', String(btn.dataset.table) === String(currentTable));
+  });
+}
+
+function changeTable(newTable) {
+  if (!newTable || !String(newTable).trim()) return;
+  currentTable = String(newTable).trim();
+
+  try {
+    localStorage.setItem('coffee_house_table', currentTable);
+  } catch (e) {}
+
+  try {
+    const url = new URL(window.location);
+    url.searchParams.set('table', currentTable);
+    window.history.replaceState(null, '', url);
+  } catch (e) {}
+
+  updateTableDisplay();
+  closeTableModal();
+}
+
+function renderTableGrid() {
+  if (!tableGrid) return;
+  tableGrid.innerHTML = '';
+  for (let i = 1; i <= 16; i++) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = `table-btn ${String(currentTable) === String(i) ? 'active' : ''}`;
+    btn.dataset.table = String(i);
+    btn.innerHTML = `<small>№</small><strong>${i}</strong>`;
+    btn.addEventListener('click', () => changeTable(i));
+    tableGrid.appendChild(btn);
+  }
+}
+
+function openTableModal() {
+  renderTableGrid();
+  if (tableCustomInput) {
+    tableCustomInput.value = isNaN(Number(currentTable)) || Number(currentTable) > 16 ? currentTable : '';
+  }
+  if (tableModalOverlay) {
+    tableModalOverlay.classList.add('active');
+  }
+  if (tableBadge) {
+    tableBadge.setAttribute('aria-expanded', 'true');
+  }
+  setTimeout(() => tableCustomInput?.focus(), 80);
+}
+
+function closeTableModal() {
+  if (tableModalOverlay) {
+    tableModalOverlay.classList.remove('active');
+  }
+  if (tableBadge) {
+    tableBadge.setAttribute('aria-expanded', 'false');
+  }
+}
+
+// Слушатели событий выбора столика
+if (tableBadge) {
+  tableBadge.addEventListener('click', openTableModal);
+}
+
+if (tableModalClose) {
+  tableModalClose.addEventListener('click', closeTableModal);
+}
+
+if (tableModalOverlay) {
+  tableModalOverlay.addEventListener('click', (e) => {
+    if (e.target === tableModalOverlay) {
+      closeTableModal();
+    }
+  });
+}
+
+if (tableCustomSubmit) {
+  tableCustomSubmit.addEventListener('click', () => {
+    const val = tableCustomInput?.value?.trim();
+    if (val) {
+      changeTable(val);
+    }
+  });
+}
+
+if (tableCustomInput) {
+  tableCustomInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const val = tableCustomInput.value.trim();
+      if (val) {
+        changeTable(val);
+      }
+    }
+  });
+}
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && tableModalOverlay?.classList.contains('active')) {
+    closeTableModal();
+  }
+});
+
+
+// ========================================
 // ОФОРМЛЕНИЕ ЗАКАЗА
 // ========================================
 
@@ -1624,9 +1829,6 @@ checkoutButton.addEventListener('click', () => {
     });
   });
 
-  const tableBadgeEl = document.getElementById('tableBadge');
-  const tableNum = tableBadgeEl ? (Number(tableBadgeEl.textContent.replace(/[^0-9]/g, '')) || 2) : 2;
-
   // Send order to backend
   fetch('/v1/orders', {
     method: 'POST',
@@ -1634,16 +1836,16 @@ checkoutButton.addEventListener('click', () => {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      table: tableNum,
+      table: currentTable,
       items: payloadItems,
       comment: ''
     })
   })
   .then(res => res.json())
   .then(res => {
-    const orderData = res.data;
-    successTable.textContent = '№' + orderData.table;
-    successStatus.textContent = 'Заказ №' + orderData.number + ' отправлен на кухню';
+    const orderData = res.data || res;
+    successTable.textContent = '№' + (orderData.table || currentTable);
+    successStatus.textContent = 'Заказ №' + (orderData.number || '') + ' отправлен на кухню';
     
     // Clear cart
     orderItems.innerHTML = '';
